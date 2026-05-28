@@ -14,6 +14,8 @@
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    ports:
+      - "5432:5432"
 
   redis:
     image: redis:7-alpine
@@ -27,6 +29,8 @@
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    ports:
+      - "6379:6370"
 
   minio:
     image: minio/minio:latest
@@ -43,6 +47,9 @@
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
 
 volumes:
   postgres_data:
