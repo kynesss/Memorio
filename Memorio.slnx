@@ -7,5 +7,6 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Memorio.API/Memorio.API.csproj" />
+    <Project Path="src/Memorio.Shared/Memorio.Shared.csproj" />
   </Folder>
 </Solution>
