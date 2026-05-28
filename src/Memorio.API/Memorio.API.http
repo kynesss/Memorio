@@ -1,0 +1,6 @@
+@Memorio.API_HostAddress = http://localhost:5243
+
+GET {{Memorio.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
