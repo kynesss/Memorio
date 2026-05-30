@@ -1,7 +1,16 @@
 using FluentValidation;
 using Memorio.API.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((ctx, config) =>
+{
+    config
+        .ReadFrom.Configuration(ctx.Configuration)
+        .WriteTo.Console()
+        .WriteTo.File("logs/memorio-.log", rollingInterval: RollingInterval.Day);
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -22,6 +31,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
