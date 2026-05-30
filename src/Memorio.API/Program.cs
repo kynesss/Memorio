@@ -1,6 +1,9 @@
+using FluentValidation;
 using Memorio.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddOpenApi();
 builder.Services.AddAuthentication();
