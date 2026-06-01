@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Memorio.Shared\Memorio.Shared.csproj" />
+    <ProjectReference Include="..\Memorio.Users\Memorio.Users.csproj" />
   </ItemGroup>
 
   <ItemGroup>

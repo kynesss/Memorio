@@ -1,12 +1,16 @@
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Memorio.Shared.Exceptions;
 
 namespace Memorio.API.Middleware;
 
 public sealed class ExceptionHandlingMiddleware
 {
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
@@ -50,7 +54,8 @@ public sealed class ExceptionHandlingMiddleware
             Title: GetTitle(statusCode),
             Status: statusCode,
             Detail: GetDetail(exception, statusCode),
-            TraceId: traceId);
+            TraceId: traceId,
+            Errors: GetErrors(exception));
 
         context.Response.Clear();
         context.Response.StatusCode = statusCode;
@@ -86,6 +91,11 @@ public sealed class ExceptionHandlingMiddleware
             _ => "Internal server error"
         };
 
+    private static IReadOnlyDictionary<string, string[]>? GetErrors(Exception exception) =>
+        exception is ValidationException { Errors.Count: > 0 } validationException
+            ? validationException.Errors
+            : null;
+
     private string GetDetail(Exception exception, int statusCode)
     {
         if (_environment.IsDevelopment())
@@ -103,5 +113,6 @@ public sealed class ExceptionHandlingMiddleware
         string Title,
         int Status,
         string Detail,
-        string TraceId);
+        string TraceId,
+        IReadOnlyDictionary<string, string[]>? Errors);
 }

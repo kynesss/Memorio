@@ -1,5 +1,9 @@
 using FluentValidation;
 using Memorio.API.Middleware;
+using Memorio.Users;
+using Memorio.Users.Api;
+using Memorio.Users.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
 
@@ -40,8 +44,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddUsersModule(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -56,6 +59,12 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var usersDbContext = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
+    await usersDbContext.Database.MigrateAsync();
+}
 
 app.UseSerilogRequestLogging();
 
@@ -79,4 +88,8 @@ app.MapGet("/health", () => Results.Ok(new
     timestamp = DateTime.UtcNow
 }));
 
+app.MapAuthEndpoints();
+
 app.Run();
+
+public partial class Program;
