@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4           # pobiera kod
       - uses: actions/setup-node@v4         # instaluje Node.js 20
         with:
-          node-version: '20'
+          node-version: '25'
       - name: Install                       # npm install
         run: npm install
       - name: Build                         # npm run build
