@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using AwesomeAssertions;
 using Memorio.Users.Application.Contracts;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
 namespace Memorio.Users.IntegrationTests;
@@ -25,13 +26,15 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthApiFactory>
         });
 
         response.EnsureSuccessStatusCode();
-        var tokens = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        var tokens = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
 
         tokens.Should().NotBeNull();
         tokens!.AccessToken.Should().NotBeNullOrWhiteSpace();
-        tokens.RefreshToken.Should().NotBeNullOrWhiteSpace();
         tokens.TokenType.Should().Be("Bearer");
         tokens.ExpiresInSeconds.Should().Be(900);
+        (await response.Content.ReadAsStringAsync()).Should().NotContain("refresh_token");
+        response.Headers.GetValues("Set-Cookie").Should().Contain(cookie =>
+            cookie.Contains("refresh_token=") && cookie.Contains("httponly", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -59,11 +62,13 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthApiFactory>
         var response = await client.PostAsJsonAsync("/api/v1/auth/login", new { email, password });
 
         response.EnsureSuccessStatusCode();
-        var tokens = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        var tokens = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
 
         tokens.Should().NotBeNull();
         tokens!.AccessToken.Should().NotBeNullOrWhiteSpace();
-        tokens.RefreshToken.Should().NotBeNullOrWhiteSpace();
+        (await response.Content.ReadAsStringAsync()).Should().NotContain("refresh_token");
+        response.Headers.GetValues("Set-Cookie").Should().Contain(cookie =>
+            cookie.Contains("refresh_token=") && cookie.Contains("httponly", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -86,30 +91,47 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthApiFactory>
     public async Task Refresh_WithValidToken_ReturnsNewTokenPair()
     {
         var client = _factory.CreateClient();
-        var registered = await RegisterAsync(client, UniqueEmail(), "Sup3rSecret!");
+        var registerResponse = await RegisterAsync(client, UniqueEmail(), "Sup3rSecret!");
+        var originalRefreshToken = GetRefreshTokenCookie(registerResponse);
 
-        var response = await client.PostAsJsonAsync("/api/v1/auth/refresh", new
-        {
-            refresh_token = registered.RefreshToken
-        });
+        var response = await client.PostAsync("/api/v1/auth/refresh", null);
 
         response.EnsureSuccessStatusCode();
-        var refreshed = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        var refreshed = await response.Content.ReadFromJsonAsync<AccessTokenResponse>();
 
         refreshed.Should().NotBeNull();
-        refreshed!.RefreshToken.Should().NotBe(registered.RefreshToken);
+        refreshed!.AccessToken.Should().NotBeNullOrWhiteSpace();
+        (await response.Content.ReadAsStringAsync()).Should().NotContain("refresh_token");
+        GetRefreshTokenCookie(response).Should().NotBe(originalRefreshToken);
     }
 
     [Fact]
     public async Task Refresh_WithRevokedToken_ReturnsUnauthorized()
     {
-        var client = _factory.CreateClient();
-        var registered = await RegisterAsync(client, UniqueEmail(), "Sup3rSecret!");
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
+        var registerResponse = await RegisterAsync(client, UniqueEmail(), "Sup3rSecret!");
+        var refreshToken = GetRefreshTokenCookie(registerResponse);
 
-        await client.PostAsJsonAsync("/api/v1/auth/refresh", new { refresh_token = registered.RefreshToken });
-        var reuse = await client.PostAsJsonAsync("/api/v1/auth/refresh", new { refresh_token = registered.RefreshToken });
+        var refresh = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/refresh");
+        refresh.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+        var refreshResponse = await client.SendAsync(refresh);
+        refreshResponse.EnsureSuccessStatusCode();
 
-        reuse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        var reuse = new HttpRequestMessage(HttpMethod.Post, "/api/v1/auth/refresh");
+        reuse.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+        var reuseResponse = await client.SendAsync(reuse);
+
+        reuseResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+
+    [Fact]
+    public async Task Refresh_WithoutCookie_ReturnsUnauthorized()
+    {
+        var client = _factory.CreateClient(new WebApplicationFactoryClientOptions { HandleCookies = false });
+
+        var response = await client.PostAsync("/api/v1/auth/refresh", null);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -117,8 +139,9 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthApiFactory>
     {
         var client = _factory.CreateClient();
         var email = UniqueEmail();
-        var registered = await RegisterAsync(client, email, "Sup3rSecret!");
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", registered.AccessToken);
+        var registerResponse = await RegisterAsync(client, email, "Sup3rSecret!");
+        var tokens = await registerResponse.Content.ReadFromJsonAsync<AccessTokenResponse>();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokens!.AccessToken);
 
         var response = await client.GetAsync("/api/v1/auth/me");
 
@@ -140,14 +163,18 @@ public sealed class AuthEndpointsTests : IClassFixture<AuthApiFactory>
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
-    private static async Task<AuthResponse> RegisterAsync(HttpClient client, string email, string password)
+    private static async Task<HttpResponseMessage> RegisterAsync(HttpClient client, string email, string password)
     {
         var response = await client.PostAsJsonAsync("/api/v1/auth/register", new { email, password });
         response.EnsureSuccessStatusCode();
-
-        var tokens = await response.Content.ReadFromJsonAsync<AuthResponse>();
-        return tokens!;
+        return response;
     }
+
+    private static string GetRefreshTokenCookie(HttpResponseMessage response) =>
+        response.Headers.GetValues("Set-Cookie")
+            .Single(cookie => cookie.StartsWith("refresh_token=", StringComparison.Ordinal))
+            .Split(';', 2)[0]
+            .Split('=', 2)[1];
 
     private static string UniqueEmail() => $"user-{Guid.NewGuid():N}@memorio.test";
 }
