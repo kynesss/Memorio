@@ -29,6 +29,11 @@ jobs:
         with:
           node-version: '25'
       - name: Install                       # npm install
-        run: npm install
+        run: npm install --legacy-peer-deps
+
+      - name: Install web deps
+        working-directory: apps/web
+        run: rm -rf node_modules package-lock.json && npm install
+        
       - name: Build                         # npm run build
         run: npm run build
