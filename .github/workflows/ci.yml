@@ -21,19 +21,19 @@ jobs:
       - name: Test                          # odpala testy
         run: dotnet test --no-build
 
-  build-frontend:                 # JOB 2 — frontend
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4           # pobiera kod
-      - uses: actions/setup-node@v4         # instaluje Node.js 20
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: '25'
-      - name: Install                       # npm install
-        run: npm install --legacy-peer-deps
 
-      - name: Install web deps
-        working-directory: apps/web
-        run: rm -rf node_modules package-lock.json && npm install
-        
-      - name: Build                         # npm run build
+      - name: Install
+        run: |
+          find . -name "package-lock.json" -not -path "*/node_modules/*" -delete
+          npm install
+
+      - name: Build
         run: npm run build
