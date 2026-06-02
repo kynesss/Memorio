@@ -3,6 +3,9 @@ using Memorio.API.Middleware;
 using Memorio.Flashcards;
 using Memorio.Flashcards.Api;
 using Memorio.Flashcards.Infrastructure.Persistence;
+using Memorio.Learning;
+using Memorio.Learning.Api;
+using Memorio.Learning.Infrastructure.Persistence;
 using Memorio.Shared.Behaviors;
 using Memorio.Shared.Extensions;
 using Memorio.Users;
@@ -53,12 +56,13 @@ builder.Services.AddSharedKernel();
 
 builder.Services.AddMediatR(configuration =>
 {
-    configuration.RegisterServicesFromAssemblies(typeof(UsersModule).Assembly, typeof(FlashcardsModule).Assembly);
+    configuration.RegisterServicesFromAssemblies(typeof(UsersModule).Assembly, typeof(FlashcardsModule).Assembly, typeof(LearningModule).Assembly);
     configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
 builder.Services.AddUsersModule(builder.Configuration);
 builder.Services.AddFlashcardsModule(builder.Configuration);
+builder.Services.AddLearningModule(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -78,6 +82,7 @@ using (var scope = app.Services.CreateScope())
 {
     await scope.ServiceProvider.GetRequiredService<UsersDbContext>().Database.MigrateAsync();
     await scope.ServiceProvider.GetRequiredService<FlashcardsDbContext>().Database.MigrateAsync();
+    await scope.ServiceProvider.GetRequiredService<LearningDbContext>().Database.MigrateAsync();
 }
 
 app.UseSerilogRequestLogging();
@@ -104,6 +109,7 @@ app.MapGet("/health", () => Results.Ok(new
 
 app.MapAuthEndpoints();
 app.MapFlashcardsEndpoints();
+app.MapLearningEndpoints();
 
 app.Run();
 
