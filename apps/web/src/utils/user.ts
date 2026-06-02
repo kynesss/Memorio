@@ -1,8 +1,8 @@
-export function displayNameFromEmail(email: string) {
+export function displayNameFromEmail(email: string, fallback: string) {
   const localPart = email.split('@')[0] ?? ''
   const firstSegment = localPart.split(/[._-]/).filter(Boolean)[0] ?? localPart
   if (!firstSegment) {
-    return 'there'
+    return fallback
   }
 
   return firstSegment.charAt(0).toUpperCase() + firstSegment.slice(1)

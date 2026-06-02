@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createDeck } from '../api/decks'
 import { getApiErrorMessage } from '../auth/api'
 import { Button } from '../components/common/Button'
@@ -13,10 +14,11 @@ import { AppLayout } from '../components/layout/AppLayout'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useDecks } from '../hooks/useDecks'
 import type { DeckInput } from '../types/flashcards'
-import { accentForIndex, greetingForHour } from '../utils/format'
+import { accentForIndex, greetingKeyForHour } from '../utils/format'
 import { displayNameFromEmail } from '../utils/user'
 
 export function DashboardPage() {
+  const { t } = useTranslation()
   const user = useCurrentUser()
   const decksQuery = useDecks()
   const [isCreating, setIsCreating] = useState(false)
@@ -51,10 +53,12 @@ export function DashboardPage() {
     <AppLayout email={email}>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-memorio-text">
-          {greetingForHour(new Date().getHours())}
-          {user.data ? `, ${displayNameFromEmail(email)}` : ''} 👋
+          {t('dashboard.greeting', {
+            greeting: t(greetingKeyForHour(new Date().getHours())),
+            name: user.data ? displayNameFromEmail(email, t('dashboard.fallbackName')) : t('dashboard.fallbackName'),
+          })}
         </h1>
-        <Button onClick={openCreate}>+ New Deck</Button>
+        <Button onClick={openCreate}>{t('dashboard.newDeck')}</Button>
       </div>
 
       <div className="mt-7 space-y-8">
@@ -62,7 +66,7 @@ export function DashboardPage() {
         <StatsRow />
 
         <section className="space-y-5">
-          <h2 className="text-xl font-bold text-memorio-text">My Decks</h2>
+          <h2 className="text-xl font-bold text-memorio-text">{t('dashboard.myDecks')}</h2>
           {decksQuery.isLoading ? (
             <PageLoader />
           ) : decksQuery.error ? (
@@ -70,9 +74,9 @@ export function DashboardPage() {
           ) : decks.length === 0 ? (
             <EmptyState
               icon="🗂"
-              title="No decks yet"
-              description="Create your first deck to start learning."
-              action={<Button onClick={openCreate}>+ New Deck</Button>}
+              title={t('dashboard.noDecks.title')}
+              description={t('dashboard.noDecks.description')}
+              action={<Button onClick={openCreate}>{t('dashboard.newDeck')}</Button>}
             />
           ) : (
             <div className="space-y-6">

@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
+import i18n from '../i18n'
 import { tokenStore } from './tokenStore'
 
 interface AccessTokenResponse {
@@ -98,16 +99,16 @@ async function requestAccessToken() {
 
 export function getApiErrorMessage(error: unknown) {
   if (!axios.isAxiosError<ApiError>(error)) {
-    return 'Something went wrong. Please try again.'
+    return i18n.t('errors.unexpected')
   }
 
   if (error.response?.status === 401) {
-    return 'Invalid email or password. Please try again.'
+    return i18n.t('errors.invalidCredentials')
   }
 
   return error.response?.data.detail
     ?? error.response?.data.title
-    ?? 'Unable to reach the server. Please try again.'
+    ?? i18n.t('errors.serverUnavailable')
 }
 
 function isAuthRequest(url?: string) {

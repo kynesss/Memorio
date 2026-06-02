@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { createCard, deleteCard, updateCard } from '../api/cards'
 import { deleteDeck, updateDeck } from '../api/decks'
@@ -23,6 +24,7 @@ import type { Card, CardInput, DeckInput } from '../types/flashcards'
 type CardModalState = { card: Card | null } | null
 
 export function DeckDetailPage() {
+  const { t } = useTranslation()
   const { deckId = '' } = useParams()
   const navigate = useNavigate()
 
@@ -143,14 +145,14 @@ export function DeckDetailPage() {
       ) : deckQuery.error || !deckQuery.data ? (
         <EmptyState
           icon="🔍"
-          title="Deck not found"
-          description={deckQuery.error ?? 'This deck no longer exists.'}
-          action={<Button onClick={() => navigate('/dashboard')}>Back to dashboard</Button>}
+          title={t('decks.notFound.title')}
+          description={deckQuery.error ?? t('decks.notFound.description')}
+          action={<Button onClick={() => navigate('/dashboard')}>{t('decks.backToDashboard')}</Button>}
         />
       ) : (
         <div className="space-y-8">
           <nav className="flex items-center gap-2 text-sm text-memorio-muted">
-            <Link to="/dashboard" className="text-memorio-primary-light hover:underline">My Decks</Link>
+            <Link to="/dashboard" className="text-memorio-primary-light hover:underline">{t('navigation.myDecks')}</Link>
             <span className="text-memorio-subtle">/</span>
             <span className="text-memorio-text">{deckQuery.data.name}</span>
           </nav>
@@ -186,17 +188,17 @@ export function DeckDetailPage() {
               debouncedSearch ? (
                 <EmptyState
                   icon="🔍"
-                  title="No matching flashcards"
-                  description="Try a different search term."
-                  action={<Button variant="secondary" onClick={() => setSearch('')}>Clear search</Button>}
+                  title={t('cards.noMatches.title')}
+                  description={t('cards.noMatches.description')}
+                  action={<Button variant="secondary" onClick={() => setSearch('')}>{t('cards.clearSearch')}</Button>}
                 />
               ) : (
                 <EmptyState
                   dashed
                   icon="🗂"
-                  title="No flashcards yet"
-                  description="Add your first flashcard to start learning."
-                  action={<Button onClick={() => setCardModal({ card: null })}>+ Add First Card</Button>}
+                  title={t('cards.noCards.title')}
+                  description={t('cards.noCards.description')}
+                  action={<Button onClick={() => setCardModal({ card: null })}>{t('cards.addFirst')}</Button>}
                 />
               )
             ) : (
@@ -214,7 +216,7 @@ export function DeckDetailPage() {
                 />
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <span className="text-sm text-memorio-subtle">
-                    Showing {cards.length} of {filteredTotal} cards
+                    {t('cards.showing', { shown: cards.length, total: filteredTotal })}
                   </span>
                   <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
                 </div>
@@ -236,9 +238,9 @@ export function DeckDetailPage() {
 
       {isDeletingDeckOpen && (
         <ConfirmDialog
-          title="Delete deck"
-          message="This permanently deletes the deck and all its flashcards. This cannot be undone."
-          confirmLabel="Delete deck"
+          title={t('decks.delete')}
+          message={t('decks.deleteMessage')}
+          confirmLabel={t('decks.delete')}
           isProcessing={isDeckDeleting}
           error={deckActionError}
           onConfirm={handleDeckDelete}
@@ -258,8 +260,8 @@ export function DeckDetailPage() {
 
       {cardToDelete && (
         <ConfirmDialog
-          title="Delete flashcard"
-          message="This permanently deletes this flashcard. This cannot be undone."
+          title={t('cards.delete')}
+          message={t('cards.deleteMessage')}
           isProcessing={isCardDeleting}
           error={cardActionError}
           onConfirm={handleCardDelete}

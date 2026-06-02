@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { getApiErrorMessage, register as registerUser } from '../auth/api'
@@ -11,15 +12,14 @@ import { FormField } from '../components/auth/FormField'
 import { PasswordStrength } from '../components/auth/PasswordStrength'
 import { Toast } from '../components/Toast'
 
-const registerSchema = z.object({
-  fullName: z.string().trim().min(2, 'Full name is required'),
-  email: z.email('Invalid email address'),
-  password: z.string().min(8, 'Password must contain at least 8 characters'),
-})
-
-type RegisterForm = z.infer<typeof registerSchema>
+type RegisterForm = {
+  fullName: string
+  email: string
+  password: string
+}
 
 export function RegisterPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [toast, setToast] = useState<string | null>(null)
   const closeToast = useCallback(() => setToast(null), [])
@@ -30,7 +30,11 @@ export function RegisterPage() {
     register,
   } = useForm<RegisterForm>({
     defaultValues: { password: '' },
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(z.object({
+      fullName: z.string().trim().min(2, t('auth.register.fullNameRequired')),
+      email: z.email(t('auth.validation.invalidEmail')),
+      password: z.string().min(8, t('auth.register.passwordTooShort')),
+    })),
   })
   const password = useWatch({ control, name: 'password' })
 
@@ -47,27 +51,27 @@ export function RegisterPage() {
     <AuthLayout>
       <Toast message={toast} onClose={closeToast} />
       <AuthCard>
-        <AuthHeader title="Create account" subtitle="Start learning smarter today" />
+        <AuthHeader title={t('auth.register.title')} subtitle={t('auth.register.subtitle')} />
         <form className="mt-3 border-t border-memorio-border pt-3.5" onSubmit={onSubmit} noValidate>
           <div className="space-y-1.5">
             <FormField
-              label="Full name"
+              label={t('auth.register.fullName')}
               type="text"
-              placeholder="Kamil Piróg"
+              placeholder={t('auth.register.fullNamePlaceholder')}
               autoComplete="name"
               error={errors.fullName?.message}
               {...register('fullName')}
             />
             <FormField
-              label="Email"
+              label={t('auth.email')}
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               autoComplete="email"
               error={errors.email?.message}
               {...register('email')}
             />
             <FormField
-              label="Password"
+              label={t('auth.password')}
               type="password"
               placeholder="••••••••••••"
               autoComplete="new-password"
@@ -81,11 +85,11 @@ export function RegisterPage() {
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? 'Creating account...' : 'Create account'}
+            {isSubmitting ? t('auth.register.creatingAccount') : t('auth.register.createAccount')}
           </button>
           <p className="pt-4 text-center text-[13px] text-memorio-muted">
-            Already have an account?{' '}
-            <Link className="font-semibold text-memorio-primary-light" to="/login">Sign in</Link>
+            {t('auth.register.alreadyHaveAccount')}{' '}
+            <Link className="font-semibold text-memorio-primary-light" to="/login">{t('auth.login.signIn')}</Link>
           </p>
         </form>
       </AuthCard>

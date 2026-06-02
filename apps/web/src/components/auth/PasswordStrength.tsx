@@ -3,6 +3,7 @@ interface PasswordStrengthProps {
 }
 
 export function PasswordStrength({ password }: PasswordStrengthProps) {
+  const { t } = useTranslation()
   const strength = getPasswordStrength(password)
 
   return (
@@ -13,7 +14,9 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
           style={{ width: strength.width }}
         />
       </div>
-      <p className="mt-1.5 text-[11px] text-memorio-subtle">Password strength: {strength.label}</p>
+      <p className="mt-1.5 text-[11px] text-memorio-subtle">
+        {t('auth.passwordStrength.label', { strength: t(`auth.passwordStrength.${strength.strength}`) })}
+      </p>
     </div>
   )
 }
@@ -28,12 +31,13 @@ function getPasswordStrength(password: string) {
   const score = checks.filter(Boolean).length
 
   if (score <= 1) {
-    return { color: 'bg-memorio-danger', label: 'Weak', width: '30%' }
+    return { color: 'bg-memorio-danger', strength: 'weak', width: '30%' }
   }
 
   if (score <= 3) {
-    return { color: 'bg-memorio-warning', label: 'Medium', width: '60%' }
+    return { color: 'bg-memorio-warning', strength: 'medium', width: '60%' }
   }
 
-  return { color: 'bg-memorio-success', label: 'Strong', width: '100%' }
+  return { color: 'bg-memorio-success', strength: 'strong', width: '100%' }
 }
+import { useTranslation } from 'react-i18next'

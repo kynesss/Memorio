@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { initialsFromEmail } from '../../utils/user'
 
 interface TopbarProps {
@@ -6,6 +7,7 @@ interface TopbarProps {
 }
 
 export function Topbar({ email }: TopbarProps) {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   const isDashboard = pathname === '/dashboard'
   const isDecks = pathname.startsWith('/decks')
@@ -18,10 +20,10 @@ export function Topbar({ email }: TopbarProps) {
           <span className="text-lg font-bold text-memorio-text">Memorio</span>
         </Link>
         <nav className="flex items-center gap-1">
-          <NavLink to="/dashboard" label="Dashboard" active={isDashboard} />
-          <NavLink to="/dashboard" label="My Decks" active={isDecks} />
-          <NavItemDisabled label="Study" />
-          <NavItemDisabled label="Settings" />
+          <NavLink to="/dashboard" label={t('navigation.dashboard')} active={isDashboard} />
+          <NavLink to="/dashboard" label={t('navigation.myDecks')} active={isDecks} />
+          <NavItemDisabled label={t('navigation.study')} />
+          <NavItemDisabled label={t('navigation.settings')} />
         </nav>
         <span
           className="ml-auto flex size-9 items-center justify-center rounded-full bg-memorio-primary text-xs font-bold text-white"
@@ -48,8 +50,10 @@ function NavLink({ to, label, active }: { to: string; label: string; active: boo
 }
 
 function NavItemDisabled({ label }: { label: string }) {
+  const { t } = useTranslation()
+
   return (
-    <span className="cursor-not-allowed rounded-lg px-3 py-2 text-sm font-medium text-memorio-subtle" title="Coming soon">
+    <span className="cursor-not-allowed rounded-lg px-3 py-2 text-sm font-medium text-memorio-subtle" title={t('common.comingSoon')}>
       {label}
     </span>
   )

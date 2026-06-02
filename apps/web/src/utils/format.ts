@@ -4,15 +4,15 @@ export function accentForIndex(index: number) {
   return accentColors[index % accentColors.length]
 }
 
-export function greetingForHour(hour: number) {
+export function greetingKeyForHour(hour: number) {
   if (hour < 12) {
-    return 'Good morning'
+    return 'dashboard.greetings.morning'
   }
   if (hour < 18) {
-    return 'Good afternoon'
+    return 'dashboard.greetings.afternoon'
   }
 
-  return 'Good evening'
+  return 'dashboard.greetings.evening'
 }
 
 export function parseTags(tags: string | null) {
@@ -32,26 +32,27 @@ export function buildCardSearchFilter(term: string) {
   return sanitized ? `(Front|Back)@=*${sanitized}` : undefined
 }
 
-export function formatRelativeDate(iso: string) {
+export function formatRelativeDate(iso: string, language: string) {
   const date = new Date(iso)
   const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000)
+  const relativeTime = new Intl.RelativeTimeFormat(language, { numeric: 'auto', style: 'narrow' })
 
   if (diffMinutes < 1) {
-    return 'just now'
+    return relativeTime.format(0, 'minute')
   }
   if (diffMinutes < 60) {
-    return `${diffMinutes}m ago`
+    return relativeTime.format(-diffMinutes, 'minute')
   }
 
   const diffHours = Math.round(diffMinutes / 60)
   if (diffHours < 24) {
-    return `${diffHours}h ago`
+    return relativeTime.format(-diffHours, 'hour')
   }
 
   const diffDays = Math.round(diffHours / 24)
   if (diffDays < 7) {
-    return `${diffDays}d ago`
+    return relativeTime.format(-diffDays, 'day')
   }
 
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  return date.toLocaleDateString(language, { month: 'short', day: 'numeric' })
 }

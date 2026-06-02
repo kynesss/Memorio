@@ -14,6 +14,8 @@ function visiblePages(page: number, totalPages: number) {
 }
 
 export function Pagination({ page, totalPages, onPageChange }: PaginationProps) {
+  const { t } = useTranslation()
+
   if (totalPages <= 1) {
     return null
   }
@@ -28,7 +30,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         onClick={() => onPageChange(page - 1)}
         className="rounded-lg border border-memorio-border px-3 py-2 text-xs font-medium text-memorio-muted transition hover:text-memorio-text disabled:cursor-not-allowed disabled:opacity-40"
       >
-        ← Prev
+        {t('pagination.previous')}
       </button>
       {pages.map((value, index) => {
         const previous = pages[index - 1]
@@ -56,8 +58,9 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
         onClick={() => onPageChange(page + 1)}
         className="rounded-lg border border-memorio-border px-3 py-2 text-xs font-medium text-memorio-muted transition hover:text-memorio-text disabled:cursor-not-allowed disabled:opacity-40"
       >
-        Next →
+        {t('pagination.next')}
       </button>
     </div>
   )
 }
+import { useTranslation } from 'react-i18next'

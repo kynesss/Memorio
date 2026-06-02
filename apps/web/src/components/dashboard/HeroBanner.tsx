@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common/Button'
 
 interface HeroBannerProps {
@@ -6,6 +7,7 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ dueCount, streak }: HeroBannerProps) {
+  const { t } = useTranslation()
   const hasDue = dueCount > 0
 
   return (
@@ -13,15 +15,15 @@ export function HeroBanner({ dueCount, streak }: HeroBannerProps) {
       <div className="pointer-events-none absolute -right-12 top-1/2 size-72 -translate-y-1/2 rounded-full bg-memorio-primary/15 blur-2xl" />
       <div className="relative max-w-xl">
         <h2 className="text-3xl font-bold text-memorio-text">
-          {hasDue ? `You have ${dueCount} cards due today` : "You're all caught up"}
+          {hasDue ? t('dashboard.hero.dueCards', { count: dueCount }) : t('dashboard.hero.allCaughtUp')}
         </h2>
         <p className="mt-2 text-sm text-memorio-muted">
           {streak > 0
-            ? `Keep your streak going — ${streak} days and counting 🔥`
-            : 'Create a deck and start building your memory.'}
+            ? t('dashboard.hero.keepStreak', { count: streak })
+            : t('dashboard.hero.buildMemory')}
         </p>
-        <Button className="mt-6" disabled={!hasDue} title={hasDue ? undefined : 'Available once you have cards due'}>
-          Study now →
+        <Button className="mt-6" disabled={!hasDue} title={hasDue ? undefined : t('dashboard.hero.availableWhenCardsDue')}>
+          {t('dashboard.hero.studyNow')}
         </Button>
       </div>
     </section>

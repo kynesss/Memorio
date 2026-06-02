@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Button } from './Button'
 import { Modal } from './Modal'
 
@@ -14,12 +15,14 @@ interface ConfirmDialogProps {
 export function ConfirmDialog({
   title,
   message,
-  confirmLabel = 'Delete',
+  confirmLabel,
   isProcessing = false,
   error,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const { t } = useTranslation()
+
   return (
     <Modal onClose={onCancel} className="max-w-md">
       <div className="p-6">
@@ -27,9 +30,9 @@ export function ConfirmDialog({
         <p className="mt-2 text-sm text-memorio-muted">{message}</p>
         {error && <p className="mt-3 text-xs text-memorio-danger">{error}</p>}
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onCancel} disabled={isProcessing}>Cancel</Button>
+          <Button variant="secondary" onClick={onCancel} disabled={isProcessing}>{t('common.cancel')}</Button>
           <Button variant="danger" onClick={onConfirm} disabled={isProcessing}>
-            {isProcessing ? 'Deleting...' : confirmLabel}
+            {isProcessing ? t('common.deleting') : (confirmLabel ?? t('common.delete'))}
           </Button>
         </div>
       </div>

@@ -1,0 +1,179 @@
+{
+  "common": {
+    "availableWhenStudyTrackingIsLive": "Dostępne po uruchomieniu śledzenia nauki",
+    "cancel": "Anuluj",
+    "comingSoon": "Wkrótce",
+    "delete": "Usuń",
+    "deleting": "Usuwanie...",
+    "loading": "Ładowanie",
+    "saveChanges": "Zapisz zmiany",
+    "saving": "Zapisywanie..."
+  },
+  "errors": {
+    "invalidCredentials": "Nieprawidłowy adres e-mail lub hasło. Spróbuj ponownie.",
+    "serverUnavailable": "Nie można połączyć się z serwerem. Spróbuj ponownie.",
+    "unexpected": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "navigation": {
+    "dashboard": "Pulpit",
+    "myDecks": "Moje talie",
+    "settings": "Ustawienia",
+    "study": "Nauka"
+  },
+  "auth": {
+    "email": "E-mail",
+    "emailPlaceholder": "ty@example.com",
+    "password": "Hasło",
+    "login": {
+      "forgotPassword": "Nie pamiętasz hasła?",
+      "noAccount": "Nie masz jeszcze konta?",
+      "or": "lub",
+      "passwordRequired": "Hasło jest wymagane",
+      "signIn": "Zaloguj się",
+      "signingIn": "Logowanie...",
+      "signUp": "Zarejestruj się",
+      "subtitle": "Zaloguj się, aby kontynuować naukę",
+      "title": "Witaj ponownie"
+    },
+    "passwordStrength": {
+      "label": "Siła hasła: {{strength}}",
+      "medium": "Średnia",
+      "strong": "Silna",
+      "weak": "Słaba"
+    },
+    "register": {
+      "alreadyHaveAccount": "Masz już konto?",
+      "createAccount": "Utwórz konto",
+      "creatingAccount": "Tworzenie konta...",
+      "fullName": "Imię i nazwisko",
+      "fullNamePlaceholder": "Jan Kowalski",
+      "fullNameRequired": "Imię i nazwisko jest wymagane",
+      "passwordTooShort": "Hasło musi zawierać co najmniej 8 znaków",
+      "subtitle": "Zacznij uczyć się skuteczniej już dziś",
+      "title": "Utwórz konto"
+    },
+    "validation": {
+      "invalidEmail": "Nieprawidłowy adres e-mail"
+    }
+  },
+  "dashboard": {
+    "fallbackName": "hej",
+    "greeting": "{{greeting}}, {{name}} 👋",
+    "greetings": {
+      "afternoon": "Dzień dobry",
+      "evening": "Dobry wieczór",
+      "morning": "Dzień dobry"
+    },
+    "hero": {
+      "allCaughtUp": "Wszystko na dziś zrobione",
+      "availableWhenCardsDue": "Dostępne, gdy pojawią się fiszki do powtórki",
+      "buildMemory": "Utwórz talię i zacznij rozwijać swoją pamięć.",
+      "dueCards_one": "Masz dziś {{count}} fiszkę do powtórki",
+      "dueCards_few": "Masz dziś {{count}} fiszki do powtórki",
+      "dueCards_many": "Masz dziś {{count}} fiszek do powtórki",
+      "dueCards_other": "Masz dziś {{count}} fiszki do powtórki",
+      "keepStreak": "Utrzymaj serię - trwa już {{count}} dni 🔥",
+      "studyNow": "Ucz się teraz →"
+    },
+    "myDecks": "Moje talie",
+    "newDeck": "+ Nowa talia",
+    "noDecks": {
+      "description": "Utwórz pierwszą talię, aby rozpocząć naukę.",
+      "title": "Nie masz jeszcze talii"
+    },
+    "stats": {
+      "dayStreak": "Dni z rzędu",
+      "dueToday": "Na dziś",
+      "mastered": "Opanowane",
+      "noStudyTime": "0 min",
+      "studyTimeToday": "Dzisiejsza nauka",
+      "totalCards": "Wszystkie fiszki"
+    }
+  },
+  "decks": {
+    "backToDashboard": "Wróć do pulpitu",
+    "cardTotal_one": "Łącznie {{count}} fiszka",
+    "cardTotal_few": "Łącznie {{count}} fiszki",
+    "cardTotal_many": "Łącznie {{count}} fiszek",
+    "cardTotal_other": "Łącznie {{count}} fiszki",
+    "created": "Utworzono {{date}}",
+    "delete": "Usuń talię",
+    "deleteMessage": "Ta operacja trwale usunie talię i wszystkie jej fiszki. Nie można jej cofnąć.",
+    "edit": "Edytuj talię",
+    "latest": "Najnowsza",
+    "noDescription": "Brak opisu",
+    "notFound": {
+      "description": "Ta talia już nie istnieje.",
+      "title": "Nie znaleziono talii"
+    },
+    "open": "Otwórz →",
+    "studyNow": "Ucz się teraz →",
+    "form": {
+      "create": "Utwórz talię",
+      "description": "Opis",
+      "descriptionPlaceholder": "Czego dotyczy ta talia?",
+      "descriptionTooLong": "Opis jest zbyt długi",
+      "editTitle": "Edytuj talię",
+      "name": "Nazwa",
+      "namePlaceholder": "Słówka z hiszpańskiego",
+      "nameRequired": "Nazwa jest wymagana",
+      "nameTooLong": "Nazwa jest zbyt długa",
+      "newTitle": "Nowa talia"
+    }
+  },
+  "cards": {
+    "add": "+ Dodaj fiszkę",
+    "addFirst": "+ Dodaj pierwszą fiszkę",
+    "clearSearch": "Wyczyść wyszukiwanie",
+    "delete": "Usuń fiszkę",
+    "deleteMessage": "Ta operacja trwale usunie fiszkę. Nie można jej cofnąć.",
+    "filters": {
+      "all": "Wszystkie",
+      "due": "Do powtórki",
+      "hard": "Trudne",
+      "mastered": "Opanowane",
+      "new": "Nowe"
+    },
+    "noCards": {
+      "description": "Dodaj pierwszą fiszkę, aby rozpocząć naukę.",
+      "title": "Nie masz jeszcze fiszek"
+    },
+    "noMatches": {
+      "description": "Spróbuj użyć innego wyszukiwanego hasła.",
+      "title": "Nie znaleziono fiszek"
+    },
+    "searchPlaceholder": "Wyszukaj fiszki...",
+    "showing": "Wyświetlono {{shown}} z {{total}} fiszek",
+    "table": {
+      "actions": "Akcje",
+      "back": "Tył",
+      "delete": "Usuń fiszkę",
+      "edit": "Edytuj fiszkę",
+      "front": "Przód",
+      "tags": "Tagi"
+    },
+    "form": {
+      "add": "Dodaj fiszkę",
+      "addTags": "Dodaj tagi...",
+      "addTitle": "Dodaj fiszkę",
+      "back": "Tył",
+      "backPlaceholder": "Definicja lub odpowiedź",
+      "cardType": "Typ fiszki",
+      "editTitle": "Edytuj fiszkę",
+      "editing": "Edycja",
+      "front": "Przód",
+      "frontAndBackRequired": "Przód i tył są wymagane.",
+      "frontPlaceholder": "Termin lub pytanie",
+      "tags": "Tagi",
+      "types": {
+        "basic": "⇄ Podstawowa",
+        "basicReversed": "⇆ Podstawowa + odwrócona",
+        "cloze": "{…} Luka"
+      }
+    }
+  },
+  "pagination": {
+    "next": "Dalej →",
+    "previous": "← Wstecz"
+  }
+}

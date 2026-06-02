@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import type { Deck } from '../../types/flashcards'
 import { formatRelativeDate } from '../../utils/format'
 
@@ -8,6 +9,9 @@ interface DeckCardProps {
 }
 
 export function DeckCard({ deck, accent }: DeckCardProps) {
+  const { i18n, t } = useTranslation()
+  const language = i18n.resolvedLanguage ?? i18n.language
+
   return (
     <Link
       to={`/decks/${deck.id}`}
@@ -16,12 +20,12 @@ export function DeckCard({ deck, accent }: DeckCardProps) {
     >
       <h3 className="text-base font-bold text-memorio-text">{deck.name}</h3>
       <p className="mt-1 line-clamp-2 min-h-8 text-xs text-memorio-muted">
-        {deck.description ?? 'No description'}
+        {deck.description ?? t('decks.noDescription')}
       </p>
       <div className="mt-5 flex items-center justify-between">
-        <span className="text-xs text-memorio-subtle">Created {formatRelativeDate(deck.createdAt)}</span>
+        <span className="text-xs text-memorio-subtle">{t('decks.created', { date: formatRelativeDate(deck.createdAt, language) })}</span>
         <span className="rounded-lg border border-memorio-border px-3 py-1.5 text-xs font-semibold text-memorio-text transition group-hover:border-memorio-primary group-hover:text-memorio-primary-light">
-          Open →
+          {t('decks.open')}
         </span>
       </div>
     </Link>

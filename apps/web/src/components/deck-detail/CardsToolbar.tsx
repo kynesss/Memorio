@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next'
 import { Button } from '../common/Button'
 
-const filters = ['All', 'Due', 'New', 'Hard', 'Mastered'] as const
+const filters = ['all', 'due', 'new', 'hard', 'mastered'] as const
 
 interface CardsToolbarProps {
   search: string
@@ -9,6 +10,8 @@ interface CardsToolbarProps {
 }
 
 export function CardsToolbar({ search, onSearchChange, onAddCard }: CardsToolbarProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-wrap items-center gap-4">
       <div className="relative min-w-64 flex-1">
@@ -16,31 +19,31 @@ export function CardsToolbar({ search, onSearchChange, onAddCard }: CardsToolbar
         <input
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Search flashcards..."
+          placeholder={t('cards.searchPlaceholder')}
           className="h-11 w-full rounded-[10px] border border-memorio-border bg-memorio-panel pl-10 pr-4 text-sm text-memorio-text outline-none transition placeholder:text-memorio-subtle focus:border-memorio-primary"
         />
       </div>
       <div className="flex items-center gap-2">
         {filters.map((filter) => {
-          const isActive = filter === 'All'
+          const isActive = filter === 'all'
           return (
             <button
               key={filter}
               type="button"
               disabled={!isActive}
-              title={isActive ? undefined : 'Available once study tracking is live'}
+              title={isActive ? undefined : t('common.availableWhenStudyTrackingIsLive')}
               className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition ${
                 isActive
                   ? 'border-memorio-primary text-memorio-primary-light'
                   : 'cursor-not-allowed border-memorio-border text-memorio-subtle'
               }`}
             >
-              {filter}
+              {t(`cards.filters.${filter}`)}
             </button>
           )
         })}
       </div>
-      <Button className="ml-auto" onClick={onAddCard}>+ Add Card</Button>
+      <Button className="ml-auto" onClick={onAddCard}>{t('cards.add')}</Button>
     </div>
   )
 }

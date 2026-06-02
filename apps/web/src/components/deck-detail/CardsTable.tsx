@@ -9,15 +9,17 @@ interface CardsTableProps {
 }
 
 export function CardsTable({ cards, onEdit, onDelete }: CardsTableProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="overflow-x-auto rounded-xl border border-memorio-border">
       <table className="w-full border-collapse text-left">
         <thead>
           <tr className="bg-memorio-panel text-xs uppercase tracking-wide text-memorio-subtle">
-            <th className="px-5 py-3 font-medium">Front</th>
-            <th className="px-5 py-3 font-medium">Back</th>
-            <th className="px-5 py-3 font-medium">Tags</th>
-            <th className="px-5 py-3 text-right font-medium">Actions</th>
+            <th className="px-5 py-3 font-medium">{t('cards.table.front')}</th>
+            <th className="px-5 py-3 font-medium">{t('cards.table.back')}</th>
+            <th className="px-5 py-3 font-medium">{t('cards.table.tags')}</th>
+            <th className="px-5 py-3 text-right font-medium">{t('cards.table.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +44,7 @@ export function CardsTable({ cards, onEdit, onDelete }: CardsTableProps) {
                   <button
                     type="button"
                     onClick={() => onEdit(card)}
-                    title="Edit card"
+                    title={t('cards.table.edit')}
                     className="flex size-8 items-center justify-center rounded-lg border border-memorio-border text-memorio-muted transition hover:border-memorio-primary hover:text-memorio-text"
                   >
                     ✎
@@ -50,7 +52,7 @@ export function CardsTable({ cards, onEdit, onDelete }: CardsTableProps) {
                   <button
                     type="button"
                     onClick={() => onDelete(card)}
-                    title="Delete card"
+                    title={t('cards.table.delete')}
                     className="flex size-8 items-center justify-center rounded-lg border border-memorio-danger/40 text-memorio-danger transition hover:bg-memorio-danger/10"
                   >
                     ✕
@@ -64,3 +66,4 @@ export function CardsTable({ cards, onEdit, onDelete }: CardsTableProps) {
     </div>
   )
 }
+import { useTranslation } from 'react-i18next'

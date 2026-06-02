@@ -1,14 +1,15 @@
 import type { FormEvent, KeyboardEvent } from 'react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Card, CardInput, CardType } from '../../types/flashcards'
 import { parseTags, serializeTags } from '../../utils/format'
 import { Button } from '../common/Button'
 import { Modal } from '../common/Modal'
 
-const cardTypes: { value: CardType; label: string }[] = [
-  { value: 'Basic', label: '⇄ Basic' },
-  { value: 'BasicReversed', label: '⇆ Basic + Reversed' },
-  { value: 'Cloze', label: '{…} Cloze' },
+const cardTypes: { value: CardType; labelKey: string }[] = [
+  { value: 'Basic', labelKey: 'cards.form.types.basic' },
+  { value: 'BasicReversed', labelKey: 'cards.form.types.basicReversed' },
+  { value: 'Cloze', labelKey: 'cards.form.types.cloze' },
 ]
 
 const editorClasses =
@@ -23,6 +24,7 @@ interface CardFormModalProps {
 }
 
 export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: CardFormModalProps) {
+  const { t } = useTranslation()
   const [type, setType] = useState<CardType>(card?.type ?? 'Basic')
   const [front, setFront] = useState(card?.front ?? '')
   const [back, setBack] = useState(card?.back ?? '')
@@ -50,7 +52,7 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
   const submit = (event: FormEvent) => {
     event.preventDefault()
     if (!front.trim() || !back.trim()) {
-      setFieldError('Front and back are required.')
+      setFieldError(t('cards.form.frontAndBackRequired'))
       return
     }
 
@@ -66,9 +68,9 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
     <Modal onClose={onClose}>
       <form className="p-6" onSubmit={submit} noValidate>
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold text-memorio-text">{card ? 'Edit flashcard' : 'Add flashcard'}</h2>
+          <h2 className="text-lg font-bold text-memorio-text">{card ? t('cards.form.editTitle') : t('cards.form.addTitle')}</h2>
           {card && (
-            <span className="rounded-md bg-memorio-primary/20 px-2 py-0.5 text-xs font-medium text-memorio-primary-light">Editing</span>
+            <span className="rounded-md bg-memorio-primary/20 px-2 py-0.5 text-xs font-medium text-memorio-primary-light">{t('cards.form.editing')}</span>
           )}
         </div>
 
@@ -80,7 +82,7 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
 
         <div className="mt-5 space-y-4">
           <div>
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">Card type</span>
+            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.cardType')}</span>
             <div className="grid grid-cols-3 gap-2 rounded-[10px] border border-memorio-border p-1">
               {cardTypes.map((option) => (
                 <button
@@ -93,35 +95,35 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
                       : 'text-memorio-muted hover:text-memorio-text'
                   }`}
                 >
-                  {option.label}
+                  {t(option.labelKey)}
                 </button>
               ))}
             </div>
           </div>
 
           <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">Front</span>
+            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.front')}</span>
             <textarea
               value={front}
               onChange={(event) => setFront(event.target.value)}
-              placeholder="Term or question"
+              placeholder={t('cards.form.frontPlaceholder')}
               autoFocus
               className={`${editorClasses} min-h-24 resize-y`}
             />
           </label>
 
           <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">Back</span>
+            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.back')}</span>
             <textarea
               value={back}
               onChange={(event) => setBack(event.target.value)}
-              placeholder="Definition or answer"
+              placeholder={t('cards.form.backPlaceholder')}
               className={`${editorClasses} min-h-24 resize-y`}
             />
           </label>
 
           <div>
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">Tags</span>
+            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.tags')}</span>
             <div className="flex flex-wrap items-center gap-2 rounded-[10px] border border-memorio-border bg-memorio-input px-3 py-2">
               {tags.map((tag) => (
                 <span key={tag} className="inline-flex items-center gap-1 rounded-md bg-memorio-primary/15 px-2 py-0.5 text-xs text-memorio-primary-light">
@@ -136,7 +138,7 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
                 onChange={(event) => setTagDraft(event.target.value)}
                 onKeyDown={handleTagKeyDown}
                 onBlur={commitTag}
-                placeholder="Add tags..."
+                placeholder={t('cards.form.addTags')}
                 className="min-w-32 flex-1 bg-transparent text-sm text-memorio-text outline-none placeholder:text-memorio-subtle"
               />
             </div>
@@ -144,9 +146,9 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button variant="secondary" onClick={onClose} disabled={isSaving}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose} disabled={isSaving}>{t('common.cancel')}</Button>
           <Button type="submit" disabled={isSaving}>
-            {isSaving ? 'Saving...' : card ? 'Save changes' : 'Add card'}
+            {isSaving ? t('common.saving') : card ? t('common.saveChanges') : t('cards.form.add')}
           </Button>
         </div>
       </form>

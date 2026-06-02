@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import { getApiErrorMessage, login } from '../auth/api'
@@ -10,14 +11,13 @@ import { AuthLayout } from '../components/auth/AuthLayout'
 import { FormField } from '../components/auth/FormField'
 import { Toast } from '../components/Toast'
 
-const loginSchema = z.object({
-  email: z.email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
-})
-
-type LoginForm = z.infer<typeof loginSchema>
+type LoginForm = {
+  email: string
+  password: string
+}
 
 export function LoginPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [apiError, setApiError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
@@ -27,7 +27,10 @@ export function LoginPage() {
     handleSubmit,
     register,
   } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(z.object({
+      email: z.email(t('auth.validation.invalidEmail')),
+      password: z.string().min(1, t('auth.login.passwordRequired')),
+    })),
   })
 
   const onSubmit = handleSubmit(async ({ email, password }) => {
@@ -47,7 +50,7 @@ export function LoginPage() {
     <AuthLayout>
       <Toast message={toast} onClose={closeToast} />
       <AuthCard hasError={Boolean(apiError)}>
-        <AuthHeader title="Welcome back" subtitle="Sign in to continue learning" />
+        <AuthHeader title={t('auth.login.title')} subtitle={t('auth.login.subtitle')} />
         <form className="mt-3 border-t border-memorio-border pt-3.5" onSubmit={onSubmit} noValidate>
           {apiError && (
             <div className="mb-3 rounded-lg border border-memorio-danger/40 bg-memorio-danger/10 px-3 py-2.5 text-xs font-medium text-memorio-danger">
@@ -56,15 +59,15 @@ export function LoginPage() {
           )}
           <div className="space-y-1.5">
             <FormField
-              label="Email"
+              label={t('auth.email')}
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('auth.emailPlaceholder')}
               autoComplete="email"
               error={errors.email?.message}
               {...register('email')}
             />
             <FormField
-              label="Password"
+              label={t('auth.password')}
               type="password"
               placeholder="••••••••••••"
               autoComplete="current-password"
@@ -73,23 +76,23 @@ export function LoginPage() {
             />
           </div>
           <button className="ml-auto mt-1.5 block text-xs font-medium text-memorio-primary-light" type="button">
-            Forgot password?
+            {t('auth.login.forgotPassword')}
           </button>
           <button
             className="mt-1.5 h-12 w-full rounded-[10px] bg-memorio-primary text-[15px] font-semibold text-white transition hover:bg-memorio-primary-light disabled:cursor-wait disabled:opacity-70"
             disabled={isSubmitting}
             type="submit"
           >
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? t('auth.login.signingIn') : t('auth.login.signIn')}
           </button>
           <div className="my-3 flex items-center gap-3 text-xs text-memorio-subtle">
             <span className="h-px flex-1 bg-memorio-border" />
-            or
+            {t('auth.login.or')}
             <span className="h-px flex-1 bg-memorio-border" />
           </div>
           <p className="pt-2 text-center text-[13px] text-memorio-muted">
-            Don&apos;t have an account?{' '}
-            <Link className="font-semibold text-memorio-primary-light" to="/register">Sign up</Link>
+            {t('auth.login.noAccount')}{' '}
+            <Link className="font-semibold text-memorio-primary-light" to="/register">{t('auth.login.signUp')}</Link>
           </p>
         </form>
       </AuthCard>

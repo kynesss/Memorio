@@ -1,0 +1,175 @@
+{
+  "common": {
+    "availableWhenStudyTrackingIsLive": "Available once study tracking is live",
+    "cancel": "Cancel",
+    "comingSoon": "Coming soon",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "loading": "Loading",
+    "saveChanges": "Save changes",
+    "saving": "Saving..."
+  },
+  "errors": {
+    "invalidCredentials": "Invalid email or password. Please try again.",
+    "serverUnavailable": "Unable to reach the server. Please try again.",
+    "unexpected": "Something went wrong. Please try again."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "myDecks": "My Decks",
+    "settings": "Settings",
+    "study": "Study"
+  },
+  "auth": {
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "login": {
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "or": "or",
+      "passwordRequired": "Password is required",
+      "signIn": "Sign in",
+      "signingIn": "Signing in...",
+      "signUp": "Sign up",
+      "subtitle": "Sign in to continue learning",
+      "title": "Welcome back"
+    },
+    "passwordStrength": {
+      "label": "Password strength: {{strength}}",
+      "medium": "Medium",
+      "strong": "Strong",
+      "weak": "Weak"
+    },
+    "register": {
+      "alreadyHaveAccount": "Already have an account?",
+      "createAccount": "Create account",
+      "creatingAccount": "Creating account...",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Jane Doe",
+      "fullNameRequired": "Full name is required",
+      "passwordTooShort": "Password must contain at least 8 characters",
+      "subtitle": "Start learning smarter today",
+      "title": "Create account"
+    },
+    "validation": {
+      "invalidEmail": "Invalid email address"
+    }
+  },
+  "dashboard": {
+    "fallbackName": "there",
+    "greeting": "{{greeting}}, {{name}} 👋",
+    "greetings": {
+      "afternoon": "Good afternoon",
+      "evening": "Good evening",
+      "morning": "Good morning"
+    },
+    "hero": {
+      "allCaughtUp": "You're all caught up",
+      "availableWhenCardsDue": "Available once you have cards due",
+      "buildMemory": "Create a deck and start building your memory.",
+      "dueCards_one": "You have {{count}} card due today",
+      "dueCards_other": "You have {{count}} cards due today",
+      "keepStreak": "Keep your streak going - {{count}} days and counting 🔥",
+      "studyNow": "Study now →"
+    },
+    "myDecks": "My Decks",
+    "newDeck": "+ New Deck",
+    "noDecks": {
+      "description": "Create your first deck to start learning.",
+      "title": "No decks yet"
+    },
+    "stats": {
+      "dayStreak": "Day streak",
+      "dueToday": "Due today",
+      "mastered": "Mastered",
+      "noStudyTime": "0m",
+      "studyTimeToday": "Study time today",
+      "totalCards": "Total cards"
+    }
+  },
+  "decks": {
+    "backToDashboard": "Back to dashboard",
+    "cardTotal_one": "{{count}} card total",
+    "cardTotal_other": "{{count}} cards total",
+    "created": "Created {{date}}",
+    "delete": "Delete deck",
+    "deleteMessage": "This permanently deletes the deck and all its flashcards. This cannot be undone.",
+    "edit": "Edit deck",
+    "latest": "Latest",
+    "noDescription": "No description",
+    "notFound": {
+      "description": "This deck no longer exists.",
+      "title": "Deck not found"
+    },
+    "open": "Open →",
+    "studyNow": "Study now →",
+    "form": {
+      "create": "Create deck",
+      "description": "Description",
+      "descriptionPlaceholder": "What is this deck about?",
+      "descriptionTooLong": "Description is too long",
+      "editTitle": "Edit deck",
+      "name": "Name",
+      "namePlaceholder": "Spanish Vocabulary",
+      "nameRequired": "Name is required",
+      "nameTooLong": "Name is too long",
+      "newTitle": "New deck"
+    }
+  },
+  "cards": {
+    "add": "+ Add Card",
+    "addFirst": "+ Add First Card",
+    "clearSearch": "Clear search",
+    "delete": "Delete flashcard",
+    "deleteMessage": "This permanently deletes this flashcard. This cannot be undone.",
+    "filters": {
+      "all": "All",
+      "due": "Due",
+      "hard": "Hard",
+      "mastered": "Mastered",
+      "new": "New"
+    },
+    "noCards": {
+      "description": "Add your first flashcard to start learning.",
+      "title": "No flashcards yet"
+    },
+    "noMatches": {
+      "description": "Try a different search term.",
+      "title": "No matching flashcards"
+    },
+    "searchPlaceholder": "Search flashcards...",
+    "showing": "Showing {{shown}} of {{total}} cards",
+    "table": {
+      "actions": "Actions",
+      "back": "Back",
+      "delete": "Delete card",
+      "edit": "Edit card",
+      "front": "Front",
+      "tags": "Tags"
+    },
+    "form": {
+      "add": "Add card",
+      "addTags": "Add tags...",
+      "addTitle": "Add flashcard",
+      "back": "Back",
+      "backPlaceholder": "Definition or answer",
+      "cardType": "Card type",
+      "editTitle": "Edit flashcard",
+      "editing": "Editing",
+      "front": "Front",
+      "frontAndBackRequired": "Front and back are required.",
+      "frontPlaceholder": "Term or question",
+      "tags": "Tags",
+      "types": {
+        "basic": "⇄ Basic",
+        "basicReversed": "⇆ Basic + Reversed",
+        "cloze": "{…} Cloze"
+      }
+    }
+  },
+  "pagination": {
+    "next": "Next →",
+    "previous": "← Prev"
+  }
+}
