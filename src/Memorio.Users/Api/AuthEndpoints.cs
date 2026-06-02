@@ -1,7 +1,8 @@
 using MediatR;
 using Memorio.Shared.Exceptions;
+using Memorio.Shared.Results;
+using Memorio.Shared.Security;
 using Memorio.Users.Api.Requests;
-using Memorio.Users.Application.Abstractions;
 using Memorio.Users.Application.Auth.GetCurrentUser;
 using Memorio.Users.Application.Auth.Login;
 using Memorio.Users.Application.Auth.Refresh;
@@ -29,9 +30,8 @@ public static class AuthEndpoints
             JwtOptions options,
             CancellationToken cancellationToken) =>
         {
-            var response = await sender.Send(new RegisterUserCommand(request.Email, request.Password), cancellationToken);
-            WriteRefreshTokenCookie(context.Response, response, options);
-            return Results.Ok(ToAccessTokenResponse(response));
+            var result = await sender.Send(new RegisterUserCommand(request.Email, request.Password), cancellationToken);
+            return result.ToResponse(tokens => AccessTokenWithCookie(context, tokens, options));
         })
         .WithName("RegisterUser")
         .WithSummary("Rejestruje nowego użytkownika, ustawia refresh token w cookie i zwraca access token.")
@@ -45,9 +45,8 @@ public static class AuthEndpoints
             JwtOptions options,
             CancellationToken cancellationToken) =>
         {
-            var response = await sender.Send(new LoginUserCommand(request.Email, request.Password), cancellationToken);
-            WriteRefreshTokenCookie(context.Response, response, options);
-            return Results.Ok(ToAccessTokenResponse(response));
+            var result = await sender.Send(new LoginUserCommand(request.Email, request.Password), cancellationToken);
+            return result.ToResponse(tokens => AccessTokenWithCookie(context, tokens, options));
         })
         .WithName("LoginUser")
         .WithSummary("Loguje użytkownika, ustawia refresh token w cookie i zwraca access token.")
@@ -62,9 +61,8 @@ public static class AuthEndpoints
         {
             var refreshToken = context.Request.Cookies[RefreshTokenCookieName]
                 ?? throw new UnauthorizedException("Refresh token is missing.");
-            var response = await sender.Send(new RefreshTokenCommand(refreshToken), cancellationToken);
-            WriteRefreshTokenCookie(context.Response, response, options);
-            return Results.Ok(ToAccessTokenResponse(response));
+            var result = await sender.Send(new RefreshTokenCommand(refreshToken), cancellationToken);
+            return result.ToResponse(tokens => AccessTokenWithCookie(context, tokens, options));
         })
         .WithName("RefreshToken")
         .WithSummary("Wymienia refresh token z cookie na nowy access token i obraca cookie.")
@@ -73,9 +71,8 @@ public static class AuthEndpoints
 
         group.MapGet("/me", async (IUserContext userContext, ISender sender, CancellationToken cancellationToken) =>
         {
-            var userId = userContext.UserId ?? throw new UnauthorizedException();
-            var response = await sender.Send(new GetCurrentUserQuery(userId), cancellationToken);
-            return Results.Ok(response);
+            var result = await sender.Send(new GetCurrentUserQuery(userContext.RequireUserId()), cancellationToken);
+            return result.ToResponse();
         })
         .RequireAuthorization()
         .WithName("GetCurrentUser")
@@ -84,6 +81,12 @@ public static class AuthEndpoints
         .Produces(StatusCodes.Status401Unauthorized);
 
         return endpoints;
+    }
+
+    private static IResult AccessTokenWithCookie(HttpContext context, AuthResponse tokens, JwtOptions options)
+    {
+        WriteRefreshTokenCookie(context.Response, tokens, options);
+        return Results.Ok(new AccessTokenResponse(tokens.AccessToken, tokens.TokenType, tokens.ExpiresInSeconds));
     }
 
     private static void WriteRefreshTokenCookie(HttpResponse response, AuthResponse tokens, JwtOptions options)
@@ -97,7 +100,4 @@ public static class AuthEndpoints
             Path = "/api/v1/auth"
         });
     }
-
-    private static AccessTokenResponse ToAccessTokenResponse(AuthResponse tokens) =>
-        new(tokens.AccessToken, tokens.TokenType, tokens.ExpiresInSeconds);
 }

@@ -1,10 +1,11 @@
 using AwesomeAssertions;
-using Memorio.Shared.Exceptions;
+using ErrorOr;
 using Memorio.Users.Application.Abstractions;
 using Memorio.Users.Application.Auth.Login;
 using Memorio.Users.Application.Contracts;
 using Memorio.Users.Domain;
 using Memorio.Users.UnitTests.Common;
+using Microsoft.AspNetCore.Identity;
 using Moq;
 using Xunit;
 
@@ -14,7 +15,7 @@ public sealed class LoginUserCommandHandlerTests
 {
     private static readonly AuthResponse ExpectedTokens = new("access", "refresh", "Bearer", 900);
 
-    private readonly Mock<Microsoft.AspNetCore.Identity.UserManager<ApplicationUser>> _userManager = UserManagerMock.Create();
+    private readonly Mock<UserManager<ApplicationUser>> _userManager = UserManagerMock.Create();
     private readonly Mock<IAuthTokenIssuer> _tokenIssuer = new();
 
     private LoginUserCommandHandler CreateHandler() => new(_userManager.Object, _tokenIssuer.Object);
@@ -29,29 +30,32 @@ public sealed class LoginUserCommandHandlerTests
 
         var result = await CreateHandler().Handle(new LoginUserCommand(user.Email!, "correct"), CancellationToken.None);
 
-        result.Should().BeSameAs(ExpectedTokens);
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeSameAs(ExpectedTokens);
     }
 
     [Fact]
-    public async Task Handle_ThrowsUnauthorized_WhenUserDoesNotExist()
+    public async Task Handle_ReturnsUnauthorized_WhenUserDoesNotExist()
     {
         _userManager.Setup(manager => manager.FindByEmailAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
 
-        var act = () => CreateHandler().Handle(new LoginUserCommand("missing@memorio.test", "any"), CancellationToken.None);
+        var result = await CreateHandler().Handle(new LoginUserCommand("missing@memorio.test", "any"), CancellationToken.None);
 
-        await act.Should().ThrowAsync<UnauthorizedException>();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Unauthorized);
         _tokenIssuer.Verify(issuer => issuer.IssueAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task Handle_ThrowsUnauthorized_WhenPasswordIsInvalid()
+    public async Task Handle_ReturnsUnauthorized_WhenPasswordIsInvalid()
     {
         var user = new ApplicationUser { Email = "user@memorio.test" };
         _userManager.Setup(manager => manager.FindByEmailAsync(user.Email!)).ReturnsAsync(user);
         _userManager.Setup(manager => manager.CheckPasswordAsync(user, It.IsAny<string>())).ReturnsAsync(false);
 
-        var act = () => CreateHandler().Handle(new LoginUserCommand(user.Email!, "wrong"), CancellationToken.None);
+        var result = await CreateHandler().Handle(new LoginUserCommand(user.Email!, "wrong"), CancellationToken.None);
 
-        await act.Should().ThrowAsync<UnauthorizedException>();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Unauthorized);
     }
 }

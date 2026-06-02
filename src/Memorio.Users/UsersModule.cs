@@ -2,16 +2,13 @@ using System.Text;
 using FluentValidation;
 using LinqKit;
 using Memorio.Users.Application.Abstractions;
-using Memorio.Users.Application.Behaviors;
 using Memorio.Users.Domain;
 using Memorio.Users.Infrastructure.Authentication;
-using Memorio.Users.Infrastructure.Identity;
 using Memorio.Users.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -26,7 +23,8 @@ public static class UsersModule
         AddPersistence(services, configuration);
         AddIdentity(services);
         AddAuthentication(services, configuration);
-        AddApplication(services);
+
+        services.AddValidatorsFromAssembly(typeof(UsersModule).Assembly);
 
         return services;
     }
@@ -79,23 +77,8 @@ public static class UsersModule
             });
 
         services.AddAuthorization();
-        services.AddHttpContextAccessor();
-        services.AddScoped<IUserContext, UserContext>();
         services.AddScoped<IAccessTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IAuthTokenIssuer, AuthTokenIssuer>();
-    }
-
-    private static void AddApplication(IServiceCollection services)
-    {
-        services.TryAddSingleton(TimeProvider.System);
-
-        services.AddMediatR(configuration =>
-        {
-            configuration.RegisterServicesFromAssembly(typeof(UsersModule).Assembly);
-            configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
-        });
-
-        services.AddValidatorsFromAssembly(typeof(UsersModule).Assembly);
     }
 
     private static JwtOptions BuildJwtOptions(IConfiguration configuration)

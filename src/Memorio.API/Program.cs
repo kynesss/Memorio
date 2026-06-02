@@ -1,5 +1,10 @@
 using FluentValidation;
 using Memorio.API.Middleware;
+using Memorio.Flashcards;
+using Memorio.Flashcards.Api;
+using Memorio.Flashcards.Infrastructure.Persistence;
+using Memorio.Shared.Behaviors;
+using Memorio.Shared.Extensions;
 using Memorio.Users;
 using Memorio.Users.Api;
 using Memorio.Users.Infrastructure.Persistence;
@@ -44,7 +49,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddSharedKernel();
+
+builder.Services.AddMediatR(configuration =>
+{
+    configuration.RegisterServicesFromAssemblies(typeof(UsersModule).Assembly, typeof(FlashcardsModule).Assembly);
+    configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
+});
+
 builder.Services.AddUsersModule(builder.Configuration);
+builder.Services.AddFlashcardsModule(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {
@@ -62,8 +76,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var usersDbContext = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
-    await usersDbContext.Database.MigrateAsync();
+    await scope.ServiceProvider.GetRequiredService<UsersDbContext>().Database.MigrateAsync();
+    await scope.ServiceProvider.GetRequiredService<FlashcardsDbContext>().Database.MigrateAsync();
 }
 
 app.UseSerilogRequestLogging();
@@ -89,6 +103,7 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 app.MapAuthEndpoints();
+app.MapFlashcardsEndpoints();
 
 app.Run();
 

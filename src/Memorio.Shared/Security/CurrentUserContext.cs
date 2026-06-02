@@ -1,15 +1,15 @@
 using System.Security.Claims;
-using Memorio.Users.Application.Abstractions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.JsonWebTokens;
 
-namespace Memorio.Users.Infrastructure.Identity;
+namespace Memorio.Shared.Security;
 
-public sealed class UserContext : IUserContext
+public sealed class CurrentUserContext : IUserContext
 {
+    private const string SubjectClaimType = "sub";
+
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserContext(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
+    public CurrentUserContext(IHttpContextAccessor httpContextAccessor) => _httpContextAccessor = httpContextAccessor;
 
     public Guid? UserId
     {
@@ -17,7 +17,7 @@ public sealed class UserContext : IUserContext
         {
             var principal = _httpContextAccessor.HttpContext?.User;
 
-            var subject = principal?.FindFirstValue(JwtRegisteredClaimNames.Sub)
+            var subject = principal?.FindFirstValue(SubjectClaimType)
                 ?? principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             return Guid.TryParse(subject, out var userId) ? userId : null;

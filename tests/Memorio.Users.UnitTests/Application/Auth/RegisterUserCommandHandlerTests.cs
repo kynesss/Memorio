@@ -1,4 +1,5 @@
 using AwesomeAssertions;
+using ErrorOr;
 using Memorio.Users.Application.Abstractions;
 using Memorio.Users.Application.Auth.Register;
 using Memorio.Users.Application.Contracts;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Time.Testing;
 using Moq;
 using Xunit;
-using ValidationException = Memorio.Shared.Exceptions.ValidationException;
 
 namespace Memorio.Users.UnitTests.Application.Auth;
 
@@ -34,21 +34,23 @@ public sealed class RegisterUserCommandHandlerTests
 
         var result = await CreateHandler().Handle(new RegisterUserCommand("user@memorio.test", "Sup3rSecret!"), CancellationToken.None);
 
-        result.Should().BeSameAs(ExpectedTokens);
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeSameAs(ExpectedTokens);
     }
 
     [Fact]
-    public async Task Handle_ThrowsValidationException_WithIdentityErrors_WhenCreationFails()
+    public async Task Handle_ReturnsConflict_WhenEmailIsDuplicated()
     {
         var identityError = new IdentityError { Code = "DuplicateEmail", Description = "Email already taken." };
         _userManager
             .Setup(manager => manager.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
             .ReturnsAsync(IdentityResult.Failed(identityError));
 
-        var act = () => CreateHandler().Handle(new RegisterUserCommand("user@memorio.test", "Sup3rSecret!"), CancellationToken.None);
+        var result = await CreateHandler().Handle(new RegisterUserCommand("user@memorio.test", "Sup3rSecret!"), CancellationToken.None);
 
-        var exception = await act.Should().ThrowAsync<ValidationException>();
-        exception.Which.Errors.Should().ContainKey("DuplicateEmail");
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Conflict);
+        result.FirstError.Code.Should().Be("DuplicateEmail");
         _tokenIssuer.Verify(issuer => issuer.IssueAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

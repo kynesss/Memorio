@@ -1,5 +1,5 @@
 using AwesomeAssertions;
-using Memorio.Shared.Exceptions;
+using ErrorOr;
 using Memorio.Users.Application.Auth.GetCurrentUser;
 using Memorio.Users.Domain;
 using Memorio.Users.UnitTests.Common;
@@ -23,17 +23,19 @@ public sealed class GetCurrentUserQueryHandlerTests
 
         var result = await CreateHandler().Handle(new GetCurrentUserQuery(user.Id), CancellationToken.None);
 
-        result.Id.Should().Be(user.Id);
-        result.Email.Should().Be(user.Email);
+        result.IsError.Should().BeFalse();
+        result.Value.Id.Should().Be(user.Id);
+        result.Value.Email.Should().Be(user.Email);
     }
 
     [Fact]
-    public async Task Handle_ThrowsUnauthorized_WhenUserDoesNotExist()
+    public async Task Handle_ReturnsUnauthorized_WhenUserDoesNotExist()
     {
         _userManager.Setup(manager => manager.FindByIdAsync(It.IsAny<string>())).ReturnsAsync((ApplicationUser?)null);
 
-        var act = () => CreateHandler().Handle(new GetCurrentUserQuery(Guid.NewGuid()), CancellationToken.None);
+        var result = await CreateHandler().Handle(new GetCurrentUserQuery(Guid.NewGuid()), CancellationToken.None);
 
-        await act.Should().ThrowAsync<UnauthorizedException>();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Unauthorized);
     }
 }

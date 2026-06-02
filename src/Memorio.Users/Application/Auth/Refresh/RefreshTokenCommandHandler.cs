@@ -1,5 +1,5 @@
+using ErrorOr;
 using MediatR;
-using Memorio.Shared.Exceptions;
 using Memorio.Users.Application.Abstractions;
 using Memorio.Users.Application.Contracts;
 using Memorio.Users.Domain;
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Memorio.Users.Application.Auth.Refresh;
 
-public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, AuthResponse>
+public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, ErrorOr<AuthResponse>>
 {
     private readonly IRefreshTokenStore _refreshTokenStore;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -26,12 +26,12 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         _clock = clock;
     }
 
-    public async Task<AuthResponse> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
+    public async Task<ErrorOr<AuthResponse>> Handle(RefreshTokenCommand command, CancellationToken cancellationToken)
     {
         var refreshToken = await _refreshTokenStore.FindAsync(command.RefreshToken, cancellationToken);
         if (refreshToken is null || !refreshToken.IsActive(_clock))
         {
-            throw new UnauthorizedException("Invalid or expired refresh token.");
+            return Error.Unauthorized(description: "Invalid or expired refresh token.");
         }
 
         refreshToken.Revoke(_clock);
@@ -39,7 +39,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         var user = await _userManager.FindByIdAsync(refreshToken.UserId.ToString());
         if (user is null)
         {
-            throw new UnauthorizedException();
+            return Error.Unauthorized();
         }
 
         return await _tokenIssuer.IssueAsync(user, cancellationToken);

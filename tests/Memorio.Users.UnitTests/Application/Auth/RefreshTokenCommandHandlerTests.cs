@@ -1,5 +1,5 @@
 using AwesomeAssertions;
-using Memorio.Shared.Exceptions;
+using ErrorOr;
 using Memorio.Users.Application.Abstractions;
 using Memorio.Users.Application.Auth.Refresh;
 using Memorio.Users.Application.Contracts;
@@ -37,30 +37,33 @@ public sealed class RefreshTokenCommandHandlerTests
 
         var result = await CreateHandler().Handle(new RefreshTokenCommand(storedToken.Token), CancellationToken.None);
 
-        result.Should().BeSameAs(ExpectedTokens);
+        result.IsError.Should().BeFalse();
+        result.Value.Should().BeSameAs(ExpectedTokens);
         storedToken.IsActive(_clock).Should().BeFalse("the consumed refresh token must be revoked during rotation");
     }
 
     [Fact]
-    public async Task Handle_ThrowsUnauthorized_WhenTokenIsUnknown()
+    public async Task Handle_ReturnsUnauthorized_WhenTokenIsUnknown()
     {
         _refreshTokenStore.Setup(store => store.FindAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((RefreshToken?)null);
 
-        var act = () => CreateHandler().Handle(new RefreshTokenCommand("unknown"), CancellationToken.None);
+        var result = await CreateHandler().Handle(new RefreshTokenCommand("unknown"), CancellationToken.None);
 
-        await act.Should().ThrowAsync<UnauthorizedException>();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Unauthorized);
     }
 
     [Fact]
-    public async Task Handle_ThrowsUnauthorized_WhenTokenIsAlreadyRevoked()
+    public async Task Handle_ReturnsUnauthorized_WhenTokenIsAlreadyRevoked()
     {
         var storedToken = RefreshToken.Issue(Guid.NewGuid(), TimeSpan.FromDays(7), _clock);
         storedToken.Revoke(_clock);
         _refreshTokenStore.Setup(store => store.FindAsync(storedToken.Token, It.IsAny<CancellationToken>())).ReturnsAsync(storedToken);
 
-        var act = () => CreateHandler().Handle(new RefreshTokenCommand(storedToken.Token), CancellationToken.None);
+        var result = await CreateHandler().Handle(new RefreshTokenCommand(storedToken.Token), CancellationToken.None);
 
-        await act.Should().ThrowAsync<UnauthorizedException>();
+        result.IsError.Should().BeTrue();
+        result.FirstError.Type.Should().Be(ErrorType.Unauthorized);
         _tokenIssuer.Verify(issuer => issuer.IssueAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

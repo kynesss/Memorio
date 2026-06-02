@@ -1,11 +1,12 @@
+using ErrorOr;
 using FluentValidation;
 using MediatR;
-using ValidationException = Memorio.Shared.Exceptions.ValidationException;
 
-namespace Memorio.Users.Application.Behaviors;
+namespace Memorio.Shared.Behaviors;
 
 public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
+    where TResponse : IErrorOr
 {
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
@@ -24,18 +25,15 @@ public sealed class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<
         var context = new ValidationContext<TRequest>(request);
         var results = await Task.WhenAll(_validators.Select(validator => validator.ValidateAsync(context, cancellationToken)));
 
-        var failures = results
+        var errors = results
             .SelectMany(result => result.Errors)
             .Where(failure => failure is not null)
+            .Select(failure => Error.Validation(failure.PropertyName, failure.ErrorMessage))
             .ToList();
 
-        if (failures.Count != 0)
+        if (errors.Count != 0)
         {
-            var errors = failures
-                .GroupBy(failure => failure.PropertyName)
-                .ToDictionary(group => group.Key, group => group.Select(failure => failure.ErrorMessage).ToArray());
-
-            throw new ValidationException(errors);
+            return (dynamic)errors;
         }
 
         return await next();

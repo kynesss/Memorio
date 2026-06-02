@@ -8,10 +8,12 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Memorio.API/Memorio.API.csproj" />
+    <Project Path="src/Memorio.Flashcards/Memorio.Flashcards.csproj" />
     <Project Path="src/Memorio.Shared/Memorio.Shared.csproj" />
     <Project Path="src/Memorio.Users/Memorio.Users.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Memorio.Flashcards.IntegrationTests/Memorio.Flashcards.IntegrationTests.csproj" />
     <Project Path="tests/Memorio.Users.IntegrationTests/Memorio.Users.IntegrationTests.csproj" />
     <Project Path="tests/Memorio.Users.UnitTests/Memorio.Users.UnitTests.csproj" />
   </Folder>

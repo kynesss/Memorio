@@ -1,4 +1,4 @@
-namespace Memorio.Users.Application.Abstractions;
+namespace Memorio.Shared.Security;
 
 public interface IUserContext
 {

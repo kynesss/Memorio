@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Memorio.Flashcards\Memorio.Flashcards.csproj" />
     <ProjectReference Include="..\Memorio.Shared\Memorio.Shared.csproj" />
     <ProjectReference Include="..\Memorio.Users\Memorio.Users.csproj" />
   </ItemGroup>
