@@ -7,9 +7,10 @@ interface DeckDetailHeaderProps {
   cardCount: number
   onEdit: () => void
   onDelete: () => void
+  onStudy: () => void
 }
 
-export function DeckDetailHeader({ deck, cardCount, onEdit, onDelete }: DeckDetailHeaderProps) {
+export function DeckDetailHeader({ deck, cardCount, onEdit, onDelete, onStudy }: DeckDetailHeaderProps) {
   const { t } = useTranslation()
 
   return (
@@ -26,7 +27,7 @@ export function DeckDetailHeader({ deck, cardCount, onEdit, onDelete }: DeckDeta
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="danger" onClick={onDelete}>{t('common.delete')}</Button>
           <Button variant="secondary" onClick={onEdit}>{t('decks.edit')}</Button>
-          <Button disabled title={t('common.availableWhenStudyTrackingIsLive')}>{t('decks.studyNow')}</Button>
+          <Button onClick={onStudy}>{t('decks.studyNow')}</Button>
         </div>
       </div>
     </section>

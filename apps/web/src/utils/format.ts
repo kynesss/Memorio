@@ -32,6 +32,20 @@ export function buildCardSearchFilter(term: string) {
   return sanitized ? `(Front|Back)@=*${sanitized}` : undefined
 }
 
+export function formatStudyDuration(totalSeconds: number) {
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+
+  if (minutes === 0) {
+    return `${seconds}s`
+  }
+  if (seconds === 0) {
+    return `${minutes}m`
+  }
+
+  return `${minutes}m ${seconds}s`
+}
+
 export function formatRelativeDate(iso: string, language: string) {
   const date = new Date(iso)
   const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000)

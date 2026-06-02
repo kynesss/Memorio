@@ -168,6 +168,49 @@
       }
     }
   },
+  "study": {
+    "exit": "Exit session",
+    "counter": "{{current}} / {{total}}",
+    "front": "Front",
+    "back": "Back",
+    "tapToReveal": "Tap to reveal answer",
+    "showAnswer": "Show Answer",
+    "skip": "Skip this card →",
+    "ratingQuestion": "How well did you know this?",
+    "shortcuts": "Keyboard shortcuts:",
+    "progress": {
+      "done": "{{count}} done",
+      "remaining": "{{count}} remaining",
+      "skipped": "{{count}} skipped"
+    },
+    "ratings": {
+      "again": { "label": "Again", "hint": "Forgot" },
+      "hard": { "label": "Hard", "hint": "With effort" },
+      "good": { "label": "Good", "hint": "Remembered" },
+      "easy": { "label": "Easy", "hint": "Too easy" }
+    },
+    "empty": {
+      "title": "All caught up",
+      "description": "There are no cards due for review in this deck right now."
+    },
+    "error": {
+      "title": "Something went wrong",
+      "retry": "Try again"
+    },
+    "summary": {
+      "title": "Session Complete! 🎉",
+      "subtitle_one": "You reviewed {{count}} card in {{deck}}",
+      "subtitle_other": "You reviewed {{count}} cards in {{deck}}",
+      "cardsReviewed": "Cards reviewed",
+      "totalReviews": "Total reviews",
+      "timeSpent": "Time spent",
+      "dayStreak": "Day streak",
+      "studyAgain": "Study Again →",
+      "backToDashboard": "Back to Dashboard",
+      "streakBanner_one": "{{count}} day streak — keep it up!",
+      "streakBanner_other": "{{count}} day streak — keep it up!"
+    }
+  },
   "pagination": {
     "next": "Next →",
     "previous": "← Prev"

@@ -168,6 +168,7 @@ export function DeckDetailPage() {
               setDeckActionError(null)
               setIsDeletingDeckOpen(true)
             }}
+            onStudy={() => navigate(`/decks/${deckId}/study`)}
           />
 
           <div className="space-y-5">

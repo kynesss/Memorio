@@ -172,6 +172,53 @@
       }
     }
   },
+  "study": {
+    "exit": "Zakończ sesję",
+    "counter": "{{current}} / {{total}}",
+    "front": "Przód",
+    "back": "Tył",
+    "tapToReveal": "Dotknij, aby zobaczyć odpowiedź",
+    "showAnswer": "Pokaż odpowiedź",
+    "skip": "Pomiń tę fiszkę →",
+    "ratingQuestion": "Jak dobrze to znałeś?",
+    "shortcuts": "Skróty klawiszowe:",
+    "progress": {
+      "done": "{{count}} ukończone",
+      "remaining": "{{count}} pozostało",
+      "skipped": "{{count}} pominięte"
+    },
+    "ratings": {
+      "again": { "label": "Znowu", "hint": "Nie pamiętam" },
+      "hard": { "label": "Trudne", "hint": "Z trudem" },
+      "good": { "label": "Dobre", "hint": "Pamiętam" },
+      "easy": { "label": "Łatwe", "hint": "Za łatwe" }
+    },
+    "empty": {
+      "title": "Wszystko na dziś zrobione",
+      "description": "W tej talii nie ma teraz fiszek do powtórki."
+    },
+    "error": {
+      "title": "Coś poszło nie tak",
+      "retry": "Spróbuj ponownie"
+    },
+    "summary": {
+      "title": "Sesja ukończona! 🎉",
+      "subtitle_one": "Przejrzałeś {{count}} fiszkę w talii {{deck}}",
+      "subtitle_few": "Przejrzałeś {{count}} fiszki w talii {{deck}}",
+      "subtitle_many": "Przejrzałeś {{count}} fiszek w talii {{deck}}",
+      "subtitle_other": "Przejrzałeś {{count}} fiszek w talii {{deck}}",
+      "cardsReviewed": "Przejrzane fiszki",
+      "totalReviews": "Wszystkie oceny",
+      "timeSpent": "Czas nauki",
+      "dayStreak": "Seria dni",
+      "studyAgain": "Ucz się ponownie →",
+      "backToDashboard": "Wróć do pulpitu",
+      "streakBanner_one": "Seria {{count}} dnia — tak trzymaj!",
+      "streakBanner_few": "Seria {{count}} dni — tak trzymaj!",
+      "streakBanner_many": "Seria {{count}} dni — tak trzymaj!",
+      "streakBanner_other": "Seria {{count}} dni — tak trzymaj!"
+    }
+  },
   "pagination": {
     "next": "Dalej →",
     "previous": "← Wstecz"

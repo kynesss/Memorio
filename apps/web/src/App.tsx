@@ -4,6 +4,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { DeckDetailPage } from './pages/DeckDetailPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import { StudySessionPage } from './pages/StudySessionPage'
 
 function App() {
   return (
@@ -24,6 +25,14 @@ function App() {
           element={(
             <ProtectedRoute>
               <DeckDetailPage />
+            </ProtectedRoute>
+          )}
+        />
+        <Route
+          path="/decks/:deckId/study"
+          element={(
+            <ProtectedRoute>
+              <StudySessionPage />
             </ProtectedRoute>
           )}
         />
