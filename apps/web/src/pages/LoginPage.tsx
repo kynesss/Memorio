@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
+import { useAuth } from '../auth/AuthContext'
 import { getApiErrorMessage, login } from '../auth/api'
 import { AuthCard } from '../components/auth/AuthCard'
 import { AuthHeader } from '../components/auth/AuthHeader'
@@ -19,6 +20,7 @@ type LoginForm = {
 export function LoginPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
   const [apiError, setApiError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const closeToast = useCallback(() => setToast(null), [])
@@ -38,6 +40,7 @@ export function LoginPage() {
 
     try {
       await login(email, password)
+      setAuthenticated()
       navigate('/dashboard', { replace: true })
     } catch (error) {
       const message = getApiErrorMessage(error)

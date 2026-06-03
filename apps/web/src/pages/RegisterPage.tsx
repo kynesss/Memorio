@@ -4,6 +4,7 @@ import { useForm, useWatch } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import { z } from 'zod'
+import { useAuth } from '../auth/AuthContext'
 import { getApiErrorMessage, register as registerUser } from '../auth/api'
 import { AuthCard } from '../components/auth/AuthCard'
 import { AuthHeader } from '../components/auth/AuthHeader'
@@ -21,6 +22,7 @@ type RegisterForm = {
 export function RegisterPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { setAuthenticated } = useAuth()
   const [toast, setToast] = useState<string | null>(null)
   const closeToast = useCallback(() => setToast(null), [])
   const {
@@ -41,6 +43,7 @@ export function RegisterPage() {
   const onSubmit = handleSubmit(async ({ email, password }) => {
     try {
       await registerUser(email, password)
+      setAuthenticated()
       navigate('/dashboard', { replace: true })
     } catch (error) {
       setToast(getApiErrorMessage(error))
