@@ -18,4 +18,15 @@ internal static class FlashcardsDbContextExtensions
         Guid cardId,
         CancellationToken cancellationToken) =>
         dbContext.Cards.FirstOrDefaultAsync(card => card.Id == cardId && card.DeckId == deckId, cancellationToken);
+
+    public static Task<Card?> FindOwnedCardAsync(
+        this FlashcardsDbContext dbContext,
+        Guid userId,
+        Guid cardId,
+        CancellationToken cancellationToken) =>
+        dbContext.Cards
+            .Include(card => card.MediaItems)
+            .FirstOrDefaultAsync(
+                card => card.Id == cardId && dbContext.Decks.Any(deck => deck.Id == card.DeckId && deck.UserId == userId),
+                cancellationToken);
 }

@@ -5,6 +5,8 @@ namespace Memorio.Flashcards.Domain;
 
 public sealed class Card : BaseEntity
 {
+    private readonly List<CardMediaItem> _mediaItems = [];
+
     private Card()
     {
     }
@@ -22,6 +24,8 @@ public sealed class Card : BaseEntity
 
     [Sieve(CanFilter = true, CanSort = true)]
     public CardType Type { get; private set; }
+
+    public IReadOnlyCollection<CardMediaItem> MediaItems => _mediaItems;
 
     public static Card Create(Guid deckId, string front, string back, string? tags, CardType type) => new()
     {

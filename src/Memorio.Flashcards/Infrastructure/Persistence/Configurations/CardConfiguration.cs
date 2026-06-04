@@ -32,6 +32,14 @@ public sealed class CardConfiguration : IEntityTypeConfiguration<Card>
 
         builder.HasIndex(card => card.DeckId);
 
+        builder.HasMany(card => card.MediaItems)
+            .WithOne()
+            .HasForeignKey(media => media.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Navigation(card => card.MediaItems)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         builder.HasOne<Deck>()
             .WithMany()
             .HasForeignKey(card => card.DeckId)

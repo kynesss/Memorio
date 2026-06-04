@@ -1,8 +1,12 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Memorio.Flashcards.Application.Abstractions;
 using Memorio.Users.Application.Contracts;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 using Xunit;
 
@@ -45,5 +49,22 @@ public sealed class FlashcardsApiFactory : WebApplicationFactory<Program>, IAsyn
         builder.UseSetting("Jwt:Secret", "integration-tests-signing-secret-key-0123456789");
         builder.UseSetting("Jwt:Issuer", "memorio-tests");
         builder.UseSetting("Jwt:Audience", "memorio-tests");
+        builder.ConfigureTestServices(services =>
+        {
+            services.RemoveAll<ICardMediaStorage>();
+            services.AddSingleton<ICardMediaStorage, TestCardMediaStorage>();
+        });
+    }
+
+    private sealed class TestCardMediaStorage : ICardMediaStorage
+    {
+        public Task<string> UploadAsync(
+            string objectKey,
+            Stream content,
+            string contentType,
+            CancellationToken cancellationToken) =>
+            Task.FromResult($"https://storage.memorio.test/{objectKey}");
+
+        public Task DeleteAsync(string objectKey, CancellationToken cancellationToken) => Task.CompletedTask;
     }
 }

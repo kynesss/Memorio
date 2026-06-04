@@ -37,6 +37,7 @@ public sealed class GetCardsQueryHandler : IRequestHandler<GetCardsQuery, ErrorO
 
         var cards = _dbContext.Cards
             .AsNoTracking()
+            .Include(card => card.MediaItems)
             .Where(card => card.DeckId == query.DeckId);
 
         return await cards.ToPagedResultAsync(query.Sieve, _sieveProcessor, _sieveOptions, card => card.ToDto(), cancellationToken);

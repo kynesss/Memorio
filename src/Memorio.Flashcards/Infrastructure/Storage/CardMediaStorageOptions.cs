@@ -1,0 +1,22 @@
+namespace Memorio.Flashcards.Infrastructure.Storage;
+
+public sealed class CardMediaStorageOptions
+{
+    public const string SectionName = "Storage";
+
+    public string Endpoint { get; init; } = string.Empty;
+
+    public string PublicBaseUrl { get; init; } = string.Empty;
+
+    public string AccessKey { get; init; } = string.Empty;
+
+    public string SecretKey { get; init; } = string.Empty;
+
+    public string BucketName { get; init; } = "memorio";
+
+    public string Region { get; init; } = "us-east-1";
+
+    public bool ForcePathStyle { get; init; } = true;
+
+    public bool CreateBucketIfMissing { get; init; }
+}

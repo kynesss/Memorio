@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using AwesomeAssertions;
 using Memorio.Flashcards.Application.Contracts;
@@ -149,6 +150,80 @@ public sealed class CardEndpointsTests : IClassFixture<FlashcardsApiFactory>
         getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
+    [Fact]
+    public async Task UploadCardMedia_AddsMediaToCard()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync();
+        var deck = await CreateDeckAsync(client);
+        var card = await CreateCardAsync(client, deck.Id, "Front", "Back", "tag");
+
+        var response = await UploadPngAsync(client, card.Id);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        var media = await response.Content.ReadFromJsonAsync<CardMediaDto>();
+        media.Should().NotBeNull();
+        media!.Url.Should().Contain($"/users/");
+        media.FileName.Should().EndWith(".png");
+        media.FileSize.Should().Be(PngImage.Length);
+
+        var cards = await GetCardsAsync(client, deck.Id);
+        cards.Items.Single().MediaItems.Should().ContainSingle(item => item.Id == media.Id);
+    }
+
+    [Fact]
+    public async Task UploadCardMedia_WithUnsupportedFile_ReturnsBadRequest()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync();
+        var deck = await CreateDeckAsync(client);
+        var card = await CreateCardAsync(client, deck.Id, "Front", "Back", "tag");
+
+        using var content = new MultipartFormDataContent();
+        var file = new ByteArrayContent("not an image"u8.ToArray());
+        file.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        content.Add(file, "file", "image.png");
+
+        var response = await client.PostAsync($"/api/v1/cards/{card.Id}/media", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task UploadCardMedia_WithTooLargeFile_ReturnsBadRequest()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync();
+        var deck = await CreateDeckAsync(client);
+        var card = await CreateCardAsync(client, deck.Id, "Front", "Back", "tag");
+        var bytes = new byte[(10 * 1024 * 1024) + 1];
+        bytes[0] = 0xff;
+        bytes[1] = 0xd8;
+        bytes[2] = 0xff;
+
+        using var content = new MultipartFormDataContent();
+        var file = new ByteArrayContent(bytes);
+        file.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+        content.Add(file, "file", "image.jpg");
+
+        var response = await client.PostAsync($"/api/v1/cards/{card.Id}/media", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task DeleteCardMedia_RemovesMediaFromCard()
+    {
+        var client = await _factory.CreateAuthenticatedClientAsync();
+        var deck = await CreateDeckAsync(client);
+        var card = await CreateCardAsync(client, deck.Id, "Front", "Back", "tag");
+        var uploadResponse = await UploadPngAsync(client, card.Id);
+        var media = await uploadResponse.Content.ReadFromJsonAsync<CardMediaDto>();
+
+        var deleteResponse = await client.DeleteAsync($"/api/v1/cards/{card.Id}/media/{media!.Id}");
+
+        deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        var cards = await GetCardsAsync(client, deck.Id);
+        cards.Items.Single().MediaItems.Should().BeEmpty();
+    }
+
     private static async Task<DeckDto> CreateDeckAsync(HttpClient client)
     {
         var response = await client.PostAsJsonAsync("/api/v1/decks", new { name = "Deck", description = (string?)null });
@@ -174,4 +249,19 @@ public sealed class CardEndpointsTests : IClassFixture<FlashcardsApiFactory>
         var page = await client.GetFromJsonAsync<PagedResult<CardDto>>($"/api/v1/decks/{deckId}/cards");
         return page!;
     }
+
+    private static Task<HttpResponseMessage> UploadPngAsync(HttpClient client, Guid cardId)
+    {
+        var content = new MultipartFormDataContent();
+        var file = new ByteArrayContent(PngImage);
+        file.Headers.ContentType = new MediaTypeHeaderValue("image/png");
+        content.Add(file, "file", "image.png");
+        return client.PostAsync($"/api/v1/cards/{cardId}/media", content);
+    }
+
+    private static readonly byte[] PngImage =
+    [
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+        0x00, 0x00, 0x00, 0x0d
+    ];
 }

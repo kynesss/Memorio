@@ -1,5 +1,5 @@
 import { apiClient } from '../auth/api'
-import type { Card, CardInput, PagedResult } from '../types/flashcards'
+import type { Card, CardInput, CardMedia, PagedResult } from '../types/flashcards'
 
 const cardsPath = (deckId: string) => `/api/v1/decks/${deckId}/cards`
 
@@ -27,4 +27,16 @@ export async function updateCard(deckId: string, cardId: string, input: CardInpu
 
 export async function deleteCard(deckId: string, cardId: string) {
   await apiClient.delete(`${cardsPath(deckId)}/${cardId}`)
+}
+
+export async function uploadCardMedia(cardId: string, file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const response = await apiClient.post<CardMedia>(`/api/v1/cards/${cardId}/media`, formData)
+  return response.data
+}
+
+export async function deleteCardMedia(cardId: string, mediaId: string) {
+  await apiClient.delete(`/api/v1/cards/${cardId}/media/${mediaId}`)
 }

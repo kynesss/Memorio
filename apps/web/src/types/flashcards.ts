@@ -17,6 +17,15 @@ export interface Card {
   type: CardType
   createdAt: string
   updatedAt: string | null
+  mediaItems: CardMedia[]
+}
+
+export interface CardMedia {
+  id: string
+  url: string
+  fileName: string
+  fileSize: number
+  createdAt: string
 }
 
 export interface PagedResult<T> {

@@ -23,6 +23,7 @@ public sealed class GetCardByIdQueryHandler : IRequestHandler<GetCardByIdQuery, 
 
         var card = await _dbContext.Cards
             .AsNoTracking()
+            .Include(card => card.MediaItems)
             .FirstOrDefaultAsync(card => card.Id == query.CardId && card.DeckId == query.DeckId, cancellationToken);
 
         return card is null ? FlashcardsErrors.CardNotFound : card.ToDto();

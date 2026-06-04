@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react'
 import { Navigate } from 'react-router-dom'
 import { PageLoader } from '../components/common/Spinner'
-import { useAuth } from './AuthContext'
+import { useAuth } from './useAuth'
 
 export function ProtectedRoute({ children }: PropsWithChildren) {
   const { status } = useAuth()

@@ -10,4 +10,12 @@ public sealed record CardDto(
     string? Tags,
     CardType Type,
     DateTime CreatedAt,
-    DateTime? UpdatedAt);
+    DateTime? UpdatedAt,
+    IReadOnlyList<CardMediaDto> MediaItems);
+
+public sealed record CardMediaDto(
+    Guid Id,
+    string Url,
+    string FileName,
+    long FileSize,
+    DateTime CreatedAt);

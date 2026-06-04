@@ -1,17 +1,8 @@
 import type { PropsWithChildren } from 'react'
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { refreshAccessToken } from './api'
+import { AuthContext, type AuthContextValue, type AuthStatus } from './auth-context'
 import { tokenStore } from './tokenStore'
-
-export type AuthStatus = 'checking' | 'authenticated' | 'guest'
-
-interface AuthContextValue {
-  status: AuthStatus
-  setAuthenticated: () => void
-  setGuest: () => void
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<AuthStatus>(
@@ -48,13 +39,4 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }), [status])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-
-  return context
 }
