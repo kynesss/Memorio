@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { createCard, deleteCard, updateCard } from '../api/cards'
+import { createCard, deleteCard, deleteCardMedia, updateCard, uploadCardMedia } from '../api/cards'
 import { deleteDeck, updateDeck } from '../api/decks'
 import { getApiErrorMessage } from '../auth/api'
 import { Button } from '../components/common/Button'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
 import { EmptyState } from '../components/common/EmptyState'
 import { PageLoader } from '../components/common/Spinner'
-import { CardFormModal } from '../components/deck-detail/CardFormModal'
+import { CardFormModal, type CardFormInput } from '../components/deck-detail/CardFormModal'
 import { CardsTable } from '../components/deck-detail/CardsTable'
 import { CardsToolbar } from '../components/deck-detail/CardsToolbar'
 import { DeckDetailHeader } from '../components/deck-detail/DeckDetailHeader'
@@ -20,6 +20,8 @@ import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useDeck } from '../hooks/useDeck'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Card, CardInput, DeckInput } from '../types/flashcards'
+import type { CardContentImage } from '../utils/cardContent'
+import { parseCardContent, replaceImageSources } from '../utils/cardContent'
 
 type CardModalState = { card: Card | null } | null
 
@@ -92,7 +94,7 @@ export function DeckDetailPage() {
     }
   }
 
-  const handleCardSubmit = async (input: CardInput) => {
+  const handleCardSubmit = async (input: CardFormInput) => {
     if (!cardModal) {
       return
     }
@@ -102,9 +104,20 @@ export function DeckDetailPage() {
 
     try {
       if (cardModal.card) {
-        await updateCard(deckId, cardModal.card.id, input)
+        const cardInput = await buildCardInput(cardModal.card.id, input)
+        await updateCard(deckId, cardModal.card.id, cardInput)
+        await deleteRemovedMedia(cardModal.card.id, input.removedMediaIds)
       } else {
-        await createCard(deckId, input)
+        const card = await createCard(deckId, {
+          front: getInitialCardText(input.front),
+          back: getInitialCardText(input.back),
+          tags: input.tags,
+          type: input.type,
+        })
+        const cardInput = await buildCardInput(card.id, input)
+        if (cardInput.front !== input.front || cardInput.back !== input.back) {
+          await updateCard(deckId, card.id, cardInput)
+        }
       }
       setCardModal(null)
       reloadCards()
@@ -114,6 +127,36 @@ export function DeckDetailPage() {
       setIsCardSaving(false)
     }
   }
+
+  const buildCardInput = async (cardId: string, input: CardFormInput): Promise<CardInput> => {
+    const [frontReplacements, backReplacements] = await Promise.all([
+      uploadPendingImages(cardId, input.frontPendingImages),
+      uploadPendingImages(cardId, input.backPendingImages),
+    ])
+
+    return {
+      front: replaceImageSources(input.front, frontReplacements),
+      back: replaceImageSources(input.back, backReplacements),
+      tags: input.tags,
+      type: input.type,
+    }
+  }
+
+  const uploadPendingImages = async (cardId: string, images: CardContentImage[]) =>
+    Promise.all(images.map(async (image) => {
+      const file = image.file
+      if (!file) {
+        return { imageId: image.id, to: image.src }
+      }
+      const media = await uploadCardMedia(cardId, file)
+      return { imageId: image.id, to: media.url }
+    }))
+
+  const deleteRemovedMedia = async (cardId: string, mediaIds: string[]) => {
+    await Promise.all(mediaIds.map((mediaId) => deleteCardMedia(cardId, mediaId)))
+  }
+
+  const getInitialCardText = (content: string) => parseCardContent(content).text || ' '
 
   const handleCardDelete = async () => {
     if (!cardToDelete) {

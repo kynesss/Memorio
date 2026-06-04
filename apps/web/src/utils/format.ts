@@ -46,6 +46,19 @@ export function formatStudyDuration(totalSeconds: number) {
   return `${minutes}m ${seconds}s`
 }
 
+export function formatFileSize(bytes: number) {
+  if (bytes < 1024) {
+    return `${bytes} B`
+  }
+
+  const kilobytes = bytes / 1024
+  if (kilobytes < 1024) {
+    return `${kilobytes.toFixed(1)} KB`
+  }
+
+  return `${(kilobytes / 1024).toFixed(1)} MB`
+}
+
 export function formatRelativeDate(iso: string, language: string) {
   const date = new Date(iso)
   const diffMinutes = Math.round((Date.now() - date.getTime()) / 60000)

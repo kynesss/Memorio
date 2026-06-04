@@ -150,7 +150,12 @@
       "delete": "Usuń fiszkę",
       "edit": "Edytuj fiszkę",
       "front": "Przód",
+      "media": "Zdjęcia",
       "tags": "Tagi"
+    },
+    "media": {
+      "delete": "Usuń zdjęcie",
+      "fileTooLarge": "Zdjęcie nie może przekraczać 10 MB."
     },
     "form": {
       "add": "Dodaj fiszkę",

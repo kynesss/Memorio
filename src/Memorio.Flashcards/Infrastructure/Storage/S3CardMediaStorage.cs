@@ -2,6 +2,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Memorio.Flashcards.Application.Abstractions;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace Memorio.Flashcards.Infrastructure.Storage;
 
@@ -56,6 +57,12 @@ internal sealed class S3CardMediaStorage : ICardMediaStorage
         {
             await _client.PutBucketAsync(_options.BucketName, cancellationToken);
         }
+
+        await _client.PutBucketPolicyAsync(new PutBucketPolicyRequest
+        {
+            BucketName = _options.BucketName,
+            Policy = BuildPublicReadPolicy()
+        }, cancellationToken);
     }
 
     private string BuildUrl(string objectKey)
@@ -69,4 +76,20 @@ internal sealed class S3CardMediaStorage : ICardMediaStorage
 
     private static string EscapeObjectKey(string objectKey) =>
         string.Join('/', objectKey.Split('/').Select(Uri.EscapeDataString));
+
+    private string BuildPublicReadPolicy() =>
+        JsonSerializer.Serialize(new
+        {
+            Version = "2012-10-17",
+            Statement = new[]
+            {
+                new
+                {
+                    Effect = "Allow",
+                    Principal = new { AWS = new[] { "*" } },
+                    Action = new[] { "s3:GetObject" },
+                    Resource = new[] { $"arn:aws:s3:::{_options.BucketName}/*" }
+                }
+            }
+        });
 }

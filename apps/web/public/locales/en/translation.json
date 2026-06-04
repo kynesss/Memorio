@@ -146,7 +146,12 @@
       "delete": "Delete card",
       "edit": "Edit card",
       "front": "Front",
+      "media": "Media",
       "tags": "Tags"
+    },
+    "media": {
+      "delete": "Delete image",
+      "fileTooLarge": "Image cannot exceed 10 MB."
     },
     "form": {
       "add": "Add card",

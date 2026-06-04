@@ -42,6 +42,10 @@ apiClient.interceptors.request.use((request) => {
     request.headers.Authorization = `Bearer ${accessToken}`
   }
 
+  if (request.data instanceof FormData) {
+    delete request.headers['Content-Type']
+  }
+
   return request
 })
 

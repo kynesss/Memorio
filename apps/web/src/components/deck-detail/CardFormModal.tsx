@@ -1,10 +1,13 @@
 import type { FormEvent, KeyboardEvent } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Card, CardInput, CardType } from '../../types/flashcards'
+import type { Card, CardType } from '../../types/flashcards'
+import type { CardContentImage } from '../../utils/cardContent'
+import { hasCardContent } from '../../utils/cardContent'
 import { parseTags, serializeTags } from '../../utils/format'
 import { Button } from '../common/Button'
 import { Modal } from '../common/Modal'
+import { CardContentField } from './CardContentField'
 
 const cardTypes: { value: CardType; labelKey: string }[] = [
   { value: 'Basic', labelKey: 'cards.form.types.basic' },
@@ -12,22 +15,38 @@ const cardTypes: { value: CardType; labelKey: string }[] = [
   { value: 'Cloze', labelKey: 'cards.form.types.cloze' },
 ]
 
-const editorClasses =
-  'w-full rounded-[10px] border border-memorio-border bg-memorio-input px-4 py-3 text-sm text-memorio-text outline-none transition placeholder:text-memorio-subtle focus:border-memorio-primary'
+export interface CardFormInput {
+  front: string
+  back: string
+  tags?: string
+  type: CardType
+  frontPendingImages: CardContentImage[]
+  backPendingImages: CardContentImage[]
+  removedMediaIds: string[]
+}
 
 interface CardFormModalProps {
   card?: Card
   error?: string | null
   isSaving: boolean
-  onSubmit: (input: CardInput) => void
+  onSubmit: (input: CardFormInput) => void
   onClose: () => void
 }
 
-export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: CardFormModalProps) {
+export function CardFormModal({
+  card,
+  error,
+  isSaving,
+  onSubmit,
+  onClose,
+}: CardFormModalProps) {
   const { t } = useTranslation()
   const [type, setType] = useState<CardType>(card?.type ?? 'Basic')
   const [front, setFront] = useState(card?.front ?? '')
   const [back, setBack] = useState(card?.back ?? '')
+  const [frontPendingImages, setFrontPendingImages] = useState<CardContentImage[]>([])
+  const [backPendingImages, setBackPendingImages] = useState<CardContentImage[]>([])
+  const [removedMediaIds, setRemovedMediaIds] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>(parseTags(card?.tags ?? null))
   const [tagDraft, setTagDraft] = useState('')
   const [fieldError, setFieldError] = useState<string | null>(null)
@@ -51,7 +70,7 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    if (!front.trim() || !back.trim()) {
+    if (!hasCardContent(front) || !hasCardContent(back)) {
       setFieldError(t('cards.form.frontAndBackRequired'))
       return
     }
@@ -61,7 +80,14 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
       back: back.trim(),
       tags: tags.length > 0 ? serializeTags(tags) : undefined,
       type,
+      frontPendingImages,
+      backPendingImages,
+      removedMediaIds,
     })
+  }
+
+  const markPersistedImageRemoved = (mediaId: string) => {
+    setRemovedMediaIds((current) => current.includes(mediaId) ? current : [...current, mediaId])
   }
 
   return (
@@ -101,26 +127,30 @@ export function CardFormModal({ card, error, isSaving, onSubmit, onClose }: Card
             </div>
           </div>
 
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.front')}</span>
-            <textarea
-              value={front}
-              onChange={(event) => setFront(event.target.value)}
-              placeholder={t('cards.form.frontPlaceholder')}
-              autoFocus
-              className={`${editorClasses} min-h-24 resize-y`}
-            />
-          </label>
+          <CardContentField
+            label={t('cards.form.front')}
+            value={front}
+            mediaItems={card?.mediaItems}
+            pendingImages={frontPendingImages}
+            onChange={setFront}
+            onPendingImagesChange={setFrontPendingImages}
+            onRemovePersistedImage={markPersistedImageRemoved}
+            onError={setFieldError}
+            placeholder={t('cards.form.frontPlaceholder')}
+            autoFocus
+          />
 
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.back')}</span>
-            <textarea
-              value={back}
-              onChange={(event) => setBack(event.target.value)}
-              placeholder={t('cards.form.backPlaceholder')}
-              className={`${editorClasses} min-h-24 resize-y`}
-            />
-          </label>
+          <CardContentField
+            label={t('cards.form.back')}
+            value={back}
+            mediaItems={card?.mediaItems}
+            pendingImages={backPendingImages}
+            onChange={setBack}
+            onPendingImagesChange={setBackPendingImages}
+            onRemovePersistedImage={markPersistedImageRemoved}
+            onError={setFieldError}
+            placeholder={t('cards.form.backPlaceholder')}
+          />
 
           <div>
             <span className="mb-1.5 block text-xs font-medium text-memorio-muted">{t('cards.form.tags')}</span>
